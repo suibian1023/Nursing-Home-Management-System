@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neuedu.yyzx.mapper.OutwardMapper">
+
+    <resultMap id="BaseResultMap" type="com.neuedu.yyzx.pojo.Outward">
+        <id column="id" property="id"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="out_date" property="outDate"/>
+        <result column="reason" property="reason"/>
+        <result column="expect_back_date" property="expectBackDate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.neuedu.yyzx.vo.OutwardVo" extends="BaseResultMap">
+        <result column="back_date" property="backDate"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        o.id, o.customer_id, o.customer_name, o.out_date, o.reason,
+        o.expect_back_date, o.create_time, o.is_deleted
+    </sql>
+
+    <select id="selectOutwardVo" resultMap="VoResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            bd.back_date AS back_date
+        FROM outward o
+        LEFT JOIN backdown bd ON o.customer_id = bd.customer_id AND bd.is_deleted = 0
+            AND bd.back_date = (
+                SELECT MAX(bd2.back_date)
+                FROM backdown bd2
+                WHERE bd2.customer_id = o.customer_id
+                  AND bd2.is_deleted = 0
+                  AND bd2.back_date >= o.out_date
+            )
+        <where>
+            o.is_deleted = 0
+            <if test="customerName != null and customerName != ''">
+                AND o.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+        </where>
+        ORDER BY o.out_date DESC, o.create_time DESC
+    </select>
+
+</mapper>

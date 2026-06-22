@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neuedu.yyzx.mapper.BackdownMapper">
+
+    <resultMap id="BaseResultMap" type="com.neuedu.yyzx.pojo.Backdown">
+        <id column="id" property="id"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="back_date" property="backDate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.neuedu.yyzx.vo.BackdownVo" extends="BaseResultMap">
+        <result column="back_date_str" property="backDateStr"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        bd.id, bd.customer_id, bd.customer_name, bd.back_date, bd.create_time, bd.is_deleted
+    </sql>
+
+    <select id="selectBackdownVo" resultMap="VoResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            DATE_FORMAT(bd.back_date, '%Y-%m-%d') AS back_date_str
+        FROM backdown bd
+        <where>
+            bd.is_deleted = 0
+            <if test="customerName != null and customerName != ''">
+                AND bd.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+        </where>
+        ORDER BY bd.create_time DESC
+    </select>
+
+</mapper>

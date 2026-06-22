@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neuedu.yyzx.mapper.NurserecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.neuedu.yyzx.pojo.Nurserecord">
+        <id column="id" property="id"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="nurse_content_id" property="nurseContentId"/>
+        <result column="record_date" property="recordDate"/>
+        <result column="nurse_time" property="nurseTime"/>
+        <result column="description" property="description"/>
+        <result column="create_time" property="createTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.neuedu.yyzx.vo.NurseRecordVo" extends="BaseResultMap">
+        <result column="content_name" property="contentName"/>
+        <result column="customer_name" property="customerName"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        nr.id, nr.customer_id, nr.nurse_content_id, nr.record_date,
+        nr.nurse_time, nr.description, nr.create_time, nr.is_deleted
+    </sql>
+
+    <select id="selectNurseRecordsVo" resultMap="VoResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            nc.content_name AS content_name,
+            c.customer_name AS customer_name
+        FROM nurserecord nr
+        LEFT JOIN nursecontent nc ON nr.nurse_content_id = nc.id AND nc.is_deleted = 0
+        LEFT JOIN customer c ON nr.customer_id = c.id AND c.is_deleted = 0
+        <where>
+            nr.is_deleted = 0
+            <if test="customerName != null and customerName != ''">
+                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+        </where>
+        ORDER BY nr.record_date DESC, nr.create_time DESC
+    </select>
+
+</mapper>

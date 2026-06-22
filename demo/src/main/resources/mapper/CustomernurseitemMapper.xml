@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neuedu.yyzx.mapper.CustomernurseitemMapper">
+
+    <resultMap id="BaseResultMap" type="com.neuedu.yyzx.pojo.Customernurseitem">
+        <id column="id" property="id"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="nurse_item_id" property="nurseItemId"/>
+        <result column="nurse_count" property="nurseCount"/>
+        <result column="nurse_date" property="nurseDate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.neuedu.yyzx.vo.CustomerNurseItemVo" extends="BaseResultMap">
+        <result column="content_name" property="contentName"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="nurse_date_str" property="nurseDateStr"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        cni.id, cni.customer_id, cni.nurse_item_id, cni.nurse_count,
+        cni.nurse_date, cni.create_time, cni.is_deleted
+    </sql>
+
+    <select id="selectCustomerItemVo" resultMap="VoResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            nc.content_name AS content_name,
+            c.customer_name AS customer_name,
+            DATE_FORMAT(cni.nurse_date, '%Y-%m-%d') AS nurse_date_str
+        FROM customernurseitem cni
+        LEFT JOIN nurselevelitem nli ON cni.nurse_item_id = nli.id AND nli.is_deleted = 0
+        LEFT JOIN nursecontent nc ON nli.nurse_content_id = nc.id AND nc.is_deleted = 0
+        LEFT JOIN customer c ON cni.customer_id = c.id AND c.is_deleted = 0
+        <where>
+            cni.is_deleted = 0
+            <if test="customerName != null and customerName != ''">
+                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+        </where>
+        ORDER BY cni.create_time DESC
+    </select>
+
+</mapper>

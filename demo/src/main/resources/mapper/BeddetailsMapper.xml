@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neuedu.yyzx.mapper.BeddetailsMapper">
+
+    <resultMap id="BaseResultMap" type="com.neuedu.yyzx.pojo.Beddetails">
+        <id column="id" property="id"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="customer_sex" property="customerSex"/>
+        <result column="bed_details" property="bedDetails"/>
+        <result column="room_no" property="roomNo"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+    </resultMap>
+
+    <resultMap id="VoResultMap" type="com.neuedu.yyzx.vo.BedDetailsVo" extends="BaseResultMap">
+        <result column="customer_sex_str" property="customerSexStr"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        bdd.id, bdd.customer_id, bdd.customer_name, bdd.customer_sex,
+        bdd.bed_details, bdd.room_no, bdd.start_date, bdd.end_date,
+        bdd.create_time, bdd.is_deleted
+    </sql>
+
+    <select id="selectBedDetailsVo" resultMap="VoResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            CASE WHEN bdd.customer_sex = 1 THEN '女' ELSE '男' END AS customer_sex_str
+        FROM beddetails bdd
+        <where>
+            bdd.is_deleted = 0
+            <if test="customerName != null and customerName != ''">
+                AND bdd.customer_name LIKE CONCAT('%', #{customerName}, '%')
+            </if>
+        </where>
+        ORDER BY bdd.create_time DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,21 @@
+# Maven
+demo/target/
+demo/.idea/
+demo/*.iml
+demo/.mvn/
+
+# Node / Vue
+vue3/node_modules/
+vue3/dist/
+vue3/.vite/
+vue3/.idea/
+vue3/*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.iml
+.vscode/

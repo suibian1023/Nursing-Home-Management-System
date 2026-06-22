@@ -1,0 +1,58 @@
+package com.neuedu.yyzx.pojo;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * @author wyh
+ * @since 2024-01-01
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@TableName("nurserecord")
+@Schema(description = "护理记录")
+public class Nurserecord implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Schema(description = "主键")
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
+
+    @Schema(description = "客户ID")
+    @TableField("customer_id")
+    private Integer customerId;
+
+    @Schema(description = "护理内容ID")
+    @TableField("nurse_content_id")
+    private Integer nurseContentId;
+
+    @Schema(description = "记录日期")
+    @TableField("record_date")
+    private Date recordDate;
+
+    @Schema(description = "护理时间")
+    @TableField("nurse_time")
+    private String nurseTime;
+
+    @Schema(description = "描述")
+    private String description;
+
+    @Schema(description = "逻辑删除标记 0=显示 1=隐藏")
+    @TableField("is_deleted")
+    @TableLogic(value = "0", delval = "1")
+    private Integer isDeleted;
+
+    @Schema(description = "创建时间")
+    @TableField("create_time")
+    private Date createTime;
+}
