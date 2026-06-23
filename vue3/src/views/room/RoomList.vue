@@ -2,16 +2,18 @@
   <div class="page-container">
     <el-card>
       <div class="search-bar">
+        <el-input v-model="search.keyword" placeholder="搜索房间号/房型" style="width:200px" clearable @clear="loadData" @keyup.enter="loadData" />
+        <el-button type="primary" @click="loadData">查询</el-button>
         <el-button type="success" @click="openAdd">新增房间</el-button>
       </div>
       <el-table :data="tableData" border stripe v-loading="loading" style="margin-top:16px">
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="roomNo" label="房间号" width="120" />
+        <el-table-column prop="buildingNo" label="楼号" width="80" />
         <el-table-column prop="roomType" label="房型" width="100" />
         <el-table-column prop="floor" label="楼层" width="80" />
-        <el-table-column prop="capacity" label="容纳人数" width="80" />
-        <el-table-column prop="price" label="价格(元/月)" width="120" />
-        <el-table-column prop="remark" label="备注" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="bedCount" label="床位总数" width="80" />
+        <el-table-column prop="emptyBed" label="空床数" width="80" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="openEdit(row)">编辑</el-button>
@@ -23,12 +25,29 @@
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑房间' : '新增房间'" width="500px" @close="resetForm">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="房间号" prop="roomNo"><el-input v-model="form.roomNo" /></el-form-item>
-        <el-form-item label="房型" prop="roomType"><el-input v-model="form.roomType" /></el-form-item>
-        <el-form-item label="楼层" prop="floor"><el-input-number v-model="form.floor" :min="1" style="width:100%" /></el-form-item>
-        <el-form-item label="容纳人数" prop="capacity"><el-input-number v-model="form.capacity" :min="1" style="width:100%" /></el-form-item>
-        <el-form-item label="价格(元/月)" prop="price"><el-input-number v-model="form.price" :min="0" :precision="2" style="width:100%" /></el-form-item>
-        <el-form-item label="备注" prop="remark"><el-input v-model="form.remark" type="textarea" /></el-form-item>
+        <el-form-item label="房间号" prop="roomNo">
+          <el-input v-model="form.roomNo" />
+        </el-form-item>
+        <el-form-item label="楼号" prop="buildingNo">
+          <el-input v-model="form.buildingNo" />
+        </el-form-item>
+        <el-form-item label="房型" prop="roomType">
+          <el-select v-model="form.roomType" style="width:100%">
+            <el-option label="单人间" value="单人间" />
+            <el-option label="双人间" value="双人间" />
+            <el-option label="三人间" value="三人间" />
+            <el-option label="四人间" value="四人间" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="楼层" prop="floor">
+          <el-input-number v-model="form.floor" :min="1" style="width:100%" />
+        </el-form-item>
+        <el-form-item label="床位总数" prop="bedCount">
+          <el-input-number v-model="form.bedCount" :min="0" style="width:100%" />
+        </el-form-item>
+        <el-form-item label="空床数" prop="emptyBed">
+          <el-input-number v-model="form.emptyBed" :min="0" style="width:100%" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -43,16 +62,64 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getRoomList, addRoom, updateRoom, deleteRoom } from '@/api'
 
-const loading = ref(false); const tableData = ref([]); const dialogVisible = ref(false); const isEdit = ref(false); const formRef = ref()
-const form = reactive({ id: null, roomNo: '', roomType: '', floor: 1, capacity: 1, price: null, remark: '' })
-const rules = { roomNo: [{ required: true, message: '请输入房间号', trigger: 'blur' }] }
+const loading = ref(false)
+const tableData = ref([])
+const dialogVisible = ref(false)
+const isEdit = ref(false)
+const formRef = ref()
 
-const loadData = async () => { loading.value = true; try { const res = await getRoomList(); tableData.value = res.data || [] } finally { loading.value = false } }
+const search = reactive({ keyword: '' })
+
+const form = reactive({ id: null, roomNo: '', buildingNo: '', roomType: '', floor: 1, bedCount: 0, emptyBed: 0 })
+const rules = {
+  roomNo: [{ required: true, message: '请输入房间号', trigger: 'blur' }],
+  buildingNo: [{ required: true, message: '请输入楼号', trigger: 'blur' }],
+  roomType: [{ required: true, message: '请选择房型', trigger: 'change' }]
+}
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const res = await getRoomList()
+    let data = res.data || []
+    if (search.keyword) {
+      const kw = search.keyword
+      data = data.filter(item =>
+        (item.roomNo && item.roomNo.includes(kw)) ||
+        (item.roomType && item.roomType.includes(kw))
+      )
+    }
+    tableData.value = data
+  } finally { loading.value = false }
+}
+
 const openAdd = () => { isEdit.value = false; resetForm(); dialogVisible.value = true }
 const openEdit = (row) => { isEdit.value = true; Object.assign(form, row); dialogVisible.value = true }
-const handleDelete = async (id) => { await ElMessageBox.confirm('确定删除吗？', '提示', { type: 'warning' }); await deleteRoom(id); ElMessage.success('删除成功'); loadData() }
-const handleSubmit = async () => { const valid = await formRef.value.validate().catch(() => false); if (!valid) return; if (isEdit.value) { await updateRoom(form); ElMessage.success('修改成功') } else { await addRoom(form); ElMessage.success('新增成功') }; dialogVisible.value = false; loadData() }
-const resetForm = () => { Object.assign(form, { id: null, roomNo: '', roomType: '', floor: 1, capacity: 1, price: null, remark: '' }); formRef.value?.resetFields() }
+
+const handleDelete = async (id) => {
+  await ElMessageBox.confirm('确定删除该房间吗？', '提示', { type: 'warning' })
+  await deleteRoom(id)
+  ElMessage.success('删除成功')
+  loadData()
+}
+
+const handleSubmit = async () => {
+  const valid = await formRef.value.validate().catch(() => false)
+  if (!valid) return
+  if (isEdit.value) { await updateRoom(form); ElMessage.success('修改成功') }
+  else { await addRoom(form); ElMessage.success('新增成功') }
+  dialogVisible.value = false
+  loadData()
+}
+
+const resetForm = () => {
+  Object.assign(form, { id: null, roomNo: '', buildingNo: '', roomType: '', floor: 1, bedCount: 0, emptyBed: 0 })
+  formRef.value?.resetFields()
+}
+
 onMounted(loadData)
 </script>
-<style scoped>.search-bar{display:flex;gap:12px}</style>
+
+<style scoped>
+.search-bar { display: flex; gap: 12px; }
+</style>

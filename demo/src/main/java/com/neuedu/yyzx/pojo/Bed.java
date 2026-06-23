@@ -35,7 +35,7 @@ public class Bed implements Serializable {
     @TableField("room_no")
     private String roomNo;
 
-    @Schema(description = "是否占用 0=空闲 1=占用")
+    @Schema(description = "床位状态 0=空闲 1=占用 2=待打扫")
     @TableField("is_used")
     private Integer isUsed;
 

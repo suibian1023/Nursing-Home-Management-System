@@ -49,6 +49,12 @@ const routes = [
         meta: { title: '床位管理', icon: 'OfficeBuilding' }
       },
       {
+        path: 'beddiagram',
+        name: 'BedDiagram',
+        component: () => import('@/views/bed/BedDiagram.vue'),
+        meta: { title: '房位示意图', icon: 'Grid' }
+      },
+      {
         path: 'room',
         name: 'RoomList',
         component: () => import('@/views/room/RoomList.vue'),

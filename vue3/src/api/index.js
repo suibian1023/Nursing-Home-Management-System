@@ -35,6 +35,7 @@ export const addBed = (data) => request.post('/bed', data)
 export const updateBed = (data) => request.put('/bed', data)
 export const deleteBed = (id) => request.delete('/bed/' + id)
 export const getBedById = (id) => request.get('/bed/' + id)
+export const updateBedStatus = (data) => request.put('/bed/status', data)
 
 // 房间
 export const getRoomList = () => request.get('/room/list')

@@ -40,6 +40,7 @@
           </template>
           <el-menu-item index="/room">房间管理</el-menu-item>
           <el-menu-item index="/bed">床位管理</el-menu-item>
+          <el-menu-item index="/beddiagram">房位示意图</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="nurse">
           <template #title>

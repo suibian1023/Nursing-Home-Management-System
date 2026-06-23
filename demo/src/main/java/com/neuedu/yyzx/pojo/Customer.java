@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -30,14 +33,17 @@ public class Customer implements Serializable {
 
     @Schema(description = "客户姓名")
     @TableField("customer_name")
+    @JsonProperty("name")
     private String customerName;
 
     @Schema(description = "客户性别")
     @TableField("customer_sex")
+    @JsonProperty("gender")
     private Integer customerSex;
 
     @Schema(description = "客户年龄")
     @TableField("customer_age")
+    @JsonProperty("age")
     private Integer customerAge;
 
     @Schema(description = "身份证号")
@@ -52,6 +58,7 @@ public class Customer implements Serializable {
 
     @Schema(description = "入住日期")
     @TableField("checkin_date")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date checkinDate;
 
     @Schema(description = "房间号")

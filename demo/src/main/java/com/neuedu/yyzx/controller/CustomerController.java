@@ -1,7 +1,9 @@
 package com.neuedu.yyzx.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.neuedu.yyzx.pojo.Bed;
 import com.neuedu.yyzx.pojo.Customer;
+import com.neuedu.yyzx.service.BedService;
 import com.neuedu.yyzx.service.CustomerService;
 import com.neuedu.yyzx.utils.ResultVo;
 import com.neuedu.yyzx.vo.CustomerVo;
@@ -18,6 +20,9 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
+    @Autowired
+    private BedService bedService;
+
     @Operation(summary = "分页查询客户")
     @GetMapping("/page")
     public ResultVo<Page<CustomerVo>> page(@RequestParam(defaultValue = "1") Long current,
@@ -30,20 +35,53 @@ public class CustomerController {
     @PostMapping
     public ResultVo<Object> save(@RequestBody Customer customer) {
         boolean result = customerService.save(customer);
+        if (result && customer.getBedId() != null) {
+            Bed bed = bedService.getById(customer.getBedId());
+            if (bed != null) {
+                bed.setIsUsed(1);
+                bedService.updateById(bed);
+            }
+        }
         return result ? ResultVo.ok() : ResultVo.fail("新增失败");
     }
 
     @Operation(summary = "修改客户")
     @PutMapping
     public ResultVo<Object> update(@RequestBody Customer customer) {
+        Customer old = customerService.getById(customer.getId());
         boolean result = customerService.updateById(customer);
+        if (result) {
+            // 如果床位数变了: 旧床位→待打扫, 新床位→占用
+            if (old != null && old.getBedId() != null && !old.getBedId().equals(customer.getBedId())) {
+                Bed oldBed = bedService.getById(old.getBedId());
+                if (oldBed != null) {
+                    oldBed.setIsUsed(2);
+                    bedService.updateById(oldBed);
+                }
+            }
+            if (customer.getBedId() != null) {
+                Bed newBed = bedService.getById(customer.getBedId());
+                if (newBed != null) {
+                    newBed.setIsUsed(1);
+                    bedService.updateById(newBed);
+                }
+            }
+        }
         return result ? ResultVo.ok() : ResultVo.fail("修改失败");
     }
 
     @Operation(summary = "删除客户")
     @DeleteMapping("/{id}")
     public ResultVo<Object> delete(@PathVariable Integer id) {
+        Customer customer = customerService.getById(id);
         boolean result = customerService.removeById(id);
+        if (result && customer != null && customer.getBedId() != null) {
+            Bed bed = bedService.getById(customer.getBedId());
+            if (bed != null) {
+                bed.setIsUsed(2);
+                bedService.updateById(bed);
+            }
+        }
         return result ? ResultVo.ok() : ResultVo.fail("删除失败");
     }
 

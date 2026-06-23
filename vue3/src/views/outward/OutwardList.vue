@@ -25,7 +25,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination v-model:current-page="search.pageNum" v-model:page-size="search.pageSize" :total="total" :page-sizes="[10,20,50]" layout="total,sizes,prev,pager,next" @change="loadData" style="margin-top:16px;justify-content:flex-end" />
+      <el-pagination v-model:current-page="search.pageNum" v-model:page-size="search.pageSize" :total="total" :page-sizes="[10,20,50]" layout="total,sizes,prev,pager,next" @current-change="loadData" @size-change="loadData" style="margin-top:16px;justify-content:flex-end" />
     </el-card>
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑记录' : '新增记录'" width="500px" @close="resetForm">

@@ -30,7 +30,7 @@
         :total="total"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next"
-        @change="loadData"
+        @current-change="loadData" @size-change="loadData"
         style="margin-top:16px; justify-content:flex-end"
       />
     </el-card>

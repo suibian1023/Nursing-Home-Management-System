@@ -44,6 +44,18 @@ public class BedController {
         return result ? ResultVo.ok() : ResultVo.fail("修改失败");
     }
 
+    @Operation(summary = "更新床位状态")
+    @PutMapping("/status")
+    public ResultVo<Object> updateStatus(@RequestBody Bed bed) {
+        Bed target = bedService.getById(bed.getId());
+        if (target == null) {
+            return ResultVo.fail("床位不存在");
+        }
+        target.setIsUsed(bed.getIsUsed());
+        boolean result = bedService.updateById(target);
+        return result ? ResultVo.ok() : ResultVo.fail("更新状态失败");
+    }
+
     @Operation(summary = "删除床位")
     @DeleteMapping("/{id}")
     public ResultVo<Object> delete(@PathVariable Integer id) {

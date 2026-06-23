@@ -30,12 +30,12 @@
         :total="total"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next"
-        @change="loadData"
+        @current-change="loadData" @size-change="loadData"
         style="margin-top:16px; justify-content:flex-end"
       />
     </el-card>
 
-    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑客户' : '新增客户'" width="600px" @close="resetForm">
+    <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑客户' : '新增客户'" width="700px" @close="resetForm">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
         <el-row :gutter="16">
           <el-col :span="12">
@@ -70,6 +70,31 @@
             <el-form-item label="备注" prop="remark"><el-input v-model="form.remark" type="textarea" /></el-form-item>
           </el-col>
         </el-row>
+
+        <el-divider content-position="left">床位分配</el-divider>
+        <el-row :gutter="16">
+          <el-col :span="8">
+            <el-form-item label="楼层" prop="selectedFloor">
+              <el-select v-model="selectedFloor" style="width:100%" @change="onFloorChange">
+                <el-option v-for="f in floors" :key="f" :label="f" :value="f" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="房间" prop="roomNo">
+              <el-select v-model="form.roomNo" style="width:100%" :disabled="!selectedFloor" @change="onRoomChange" filterable>
+                <el-option v-for="r in floorRooms" :key="r.roomNo" :label="r.roomNo" :value="r.roomNo" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="床位" prop="bedId">
+              <el-select v-model="form.bedId" style="width:100%" :disabled="!form.roomNo" placeholder="仅显示空闲床位">
+                <el-option v-for="b in availableBeds" :key="b.id" :label="b.bedNo" :value="b.id" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -80,9 +105,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getCustomerPage, addCustomer, updateCustomer, deleteCustomer, getCustomerById } from '@/api'
+import { getCustomerPage, addCustomer, updateCustomer, deleteCustomer, getCustomerById, getRoomList, getBedList } from '@/api'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -94,13 +119,51 @@ const formRef = ref()
 const search = reactive({ pageNum: 1, pageSize: 10, keyword: '' })
 
 const form = reactive({
-  id: null, name: '', gender: 1, age: null, phone: '', idCard: '', checkinDate: '', address: '', remark: ''
+  id: null, name: '', gender: 1, age: null, phone: '', idCard: '', checkinDate: '', address: '', remark: '',
+  roomNo: '', bedId: null
 })
 
 const rules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }]
+}
+
+// 楼层/房间/床位级联
+const floors = ['一楼', '二楼', '三楼']
+const floorMap = { '一楼': '1层', '二楼': '2层', '三楼': '3层' }
+const selectedFloor = ref('')
+const allRooms = ref([])
+const allBeds = ref([])
+
+const floorRooms = computed(() => {
+  if (!selectedFloor.value) return []
+  const dbFloor = floorMap[selectedFloor.value]
+  return allRooms.value.filter(r => r.floor === dbFloor)
+})
+
+const availableBeds = computed(() => {
+  if (!form.roomNo) return []
+  return allBeds.value.filter(b => b.roomNo === form.roomNo && b.isUsed === 0)
+})
+
+const onFloorChange = () => {
+  form.roomNo = ''
+  form.bedId = null
+}
+
+const onRoomChange = () => {
+  form.bedId = null
+}
+
+const loadRoomBedData = async () => {
+  try {
+    const [roomRes, bedRes] = await Promise.all([getRoomList(), getBedList()])
+    allRooms.value = roomRes.data || []
+    allBeds.value = bedRes.data || []
+  } catch (e) {
+    console.error('加载房间床位数据失败:', e)
+  }
 }
 
 const loadData = async () => {
@@ -112,8 +175,27 @@ const loadData = async () => {
   } finally { loading.value = false }
 }
 
-const openAdd = () => { isEdit.value = false; resetForm(); dialogVisible.value = true }
-const openEdit = async (row) => { isEdit.value = true; const res = await getCustomerById(row.id); Object.assign(form, res.data); dialogVisible.value = true }
+const openAdd = () => {
+  isEdit.value = false
+  resetForm()
+  loadRoomBedData()
+  dialogVisible.value = true
+}
+
+const openEdit = async (row) => {
+  isEdit.value = true
+  await loadRoomBedData()
+  const res = await getCustomerById(row.id)
+  Object.assign(form, res.data)
+  // 回显楼层
+  if (form.roomNo) {
+    const room = allRooms.value.find(r => r.roomNo === form.roomNo)
+    if (room) {
+      selectedFloor.value = Object.keys(floorMap).find(k => floorMap[k] === room.floor) || ''
+    }
+  }
+  dialogVisible.value = true
+}
 
 const handleDelete = async (id) => {
   await ElMessageBox.confirm('确定删除该客户吗？', '提示', { type: 'warning' })
@@ -132,7 +214,8 @@ const handleSubmit = async () => {
 }
 
 const resetForm = () => {
-  Object.assign(form, { id: null, name: '', gender: 1, age: null, phone: '', idCard: '', checkinDate: '', address: '', remark: '' })
+  Object.assign(form, { id: null, name: '', gender: 1, age: null, phone: '', idCard: '', checkinDate: '', address: '', remark: '', roomNo: '', bedId: null })
+  selectedFloor.value = ''
   formRef.value?.resetFields()
 }
 
