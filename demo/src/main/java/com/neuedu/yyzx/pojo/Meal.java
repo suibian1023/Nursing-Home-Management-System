@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -28,6 +29,10 @@ public class Meal implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
+    @Schema(description = "套餐名称")
+    @TableField("meal_name")
+    private String mealName;
+
     @Schema(description = "客户ID")
     @TableField("customer_id")
     private Integer customerId;
@@ -43,6 +48,9 @@ public class Meal implements Serializable {
     @Schema(description = "食物ID列表")
     @TableField("food_ids")
     private String foodIds;
+
+    @Schema(description = "价格")
+    private BigDecimal price;
 
     @Schema(description = "逻辑删除标记 0=显示 1=隐藏")
     @TableField("is_deleted")

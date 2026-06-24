@@ -20,10 +20,10 @@ public class MealController {
 
     @Operation(summary = "分页查询膳食记录")
     @GetMapping("/page")
-    public ResultVo<Page<MealVo>> page(@RequestParam(defaultValue = "1") Long current,
-                                        @RequestParam(defaultValue = "10") Long size,
-                                        @RequestParam(required = false) String customerName) {
-        return mealService.selectMealVo(current, size, customerName);
+    public ResultVo<Page<MealVo>> page(@RequestParam(defaultValue = "1") Long pageNum,
+                                        @RequestParam(defaultValue = "10") Long pageSize,
+                                        @RequestParam(required = false) String keyword) {
+        return mealService.selectMealVo(pageNum, pageSize, keyword);
     }
 
     @Operation(summary = "新增膳食记录")

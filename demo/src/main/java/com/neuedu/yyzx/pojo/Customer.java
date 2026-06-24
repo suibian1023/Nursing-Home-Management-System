@@ -53,6 +53,11 @@ public class Customer implements Serializable {
     @Schema(description = "电话")
     private String phone;
 
+    @Schema(description = "亲属手机号")
+    @TableField("relative_phone")
+    @JsonProperty("relativePhone")
+    private String relativePhone;
+
     @Schema(description = "地址")
     private String address;
 

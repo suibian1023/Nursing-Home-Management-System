@@ -32,9 +32,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private RoleMapper roleMapper;
 
     @Override
-    public ResultVo<Page<UserVo>> selectPageVo(Long current, Long size, String username) {
+    public ResultVo<Page<UserVo>> selectPageVo(Long current, Long size, String keyword) {
         Page<UserVo> page = new Page<>(current, size);
-        page = baseMapper.selectPageVo(page, username);
+        page = baseMapper.selectPageVo(page, keyword);
         return ResultVo.ok(page);
     }
 

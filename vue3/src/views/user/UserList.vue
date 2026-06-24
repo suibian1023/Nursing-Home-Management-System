@@ -9,14 +9,14 @@
       <el-table :data="tableData" border stripe v-loading="loading" style="margin-top:16px">
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="username" label="用户名" width="120" />
-        <el-table-column prop="realName" label="姓名" width="100" />
-        <el-table-column prop="phone" label="手机号" width="130" />
-        <el-table-column prop="email" label="邮箱" min-width="180" />
-        <el-table-column prop="status" label="状态" width="80">
+        <el-table-column prop="nickname" label="姓名" width="120" />
+        <el-table-column prop="roleName" label="角色" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'">{{ row.status === 1 ? '启用' : '禁用' }}</el-tag>
+            <el-tag :type="row.roleId === 1 ? 'danger' : 'success'">{{ row.roleName || '未知' }}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column prop="phoneNumber" label="手机号" width="130" />
+        <el-table-column prop="email" label="邮箱" min-width="180" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <el-button size="small" @click="openEdit(row)">编辑</el-button>
@@ -43,17 +43,20 @@
         <el-form-item label="密码" :prop="isEdit ? '' : 'password'">
           <el-input v-model="form.password" type="password" :placeholder="isEdit ? '留空不修改' : '请输入密码'" />
         </el-form-item>
-        <el-form-item label="姓名" prop="realName">
-          <el-input v-model="form.realName" />
+        <el-form-item label="姓名" prop="nickname">
+          <el-input v-model="form.nickname" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" />
+        <el-form-item label="角色" prop="roleId">
+          <el-select v-model="form.roleId" style="width:100%">
+            <el-option label="超级管理员" :value="1" />
+            <el-option label="健康管家" :value="2" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="手机号" prop="phoneNumber">
+          <el-input v-model="form.phoneNumber" maxlength="11" @input="form.phoneNumber = form.phoneNumber.replace(/\D/g, '')" />
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="form.email" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -79,13 +82,24 @@ const formRef = ref()
 const search = reactive({ pageNum: 1, pageSize: 10, keyword: '' })
 
 const form = reactive({
-  id: null, username: '', password: '', realName: '', phone: '', email: '', status: 1
+  id: null, username: '', password: '', nickname: '', roleId: 2, phoneNumber: '', email: ''
 })
+
+const validatePhoneNumber = (rule, value, callback) => {
+  if (value && !/^\d{11}$/.test(value)) {
+    ElMessage.warning('手机号必须为11位数字')
+    callback(new Error('手机号必须为11位数字'))
+  } else {
+    callback()
+  }
+}
 
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }]
+  nickname: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  roleId: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  phoneNumber: [{ validator: validatePhoneNumber, trigger: 'blur' }]
 }
 
 const loadData = async () => {
@@ -137,7 +151,7 @@ const handleSubmit = async () => {
 }
 
 const resetForm = () => {
-  Object.assign(form, { id: null, username: '', password: '', realName: '', phone: '', email: '', status: 1 })
+  Object.assign(form, { id: null, username: '', password: '', nickname: '', roleId: 2, phoneNumber: '', email: '' })
   formRef.value?.resetFields()
 }
 
@@ -145,6 +159,5 @@ onMounted(loadData)
 </script>
 
 <style scoped>
-.page-container { }
 .search-bar { display: flex; gap: 12px; }
 </style>

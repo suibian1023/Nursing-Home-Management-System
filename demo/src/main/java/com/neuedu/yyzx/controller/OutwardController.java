@@ -20,10 +20,10 @@ public class OutwardController {
 
     @Operation(summary = "分页查询外出记录")
     @GetMapping("/page")
-    public ResultVo<Page<OutwardVo>> page(@RequestParam(defaultValue = "1") Long current,
-                                           @RequestParam(defaultValue = "10") Long size,
-                                           @RequestParam(required = false) String customerName) {
-        return outwardService.selectOutwardVo(current, size, customerName);
+    public ResultVo<Page<OutwardVo>> page(@RequestParam(defaultValue = "1") Long pageNum,
+                                           @RequestParam(defaultValue = "10") Long pageSize,
+                                           @RequestParam(required = false) String keyword) {
+        return outwardService.selectOutwardVo(pageNum, pageSize, keyword);
     }
 
     @Operation(summary = "新增外出记录")

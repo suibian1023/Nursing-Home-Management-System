@@ -23,6 +23,7 @@ export const deleteMenu = (id) => request.delete('/menu/' + id)
 
 // 客户
 export const getCustomerPage = (params) => request.get('/customer/page', { params })
+export const getCustomerList = () => request.get('/customer/list')
 export const addCustomer = (data) => request.post('/customer', data)
 export const updateCustomer = (data) => request.put('/customer', data)
 export const deleteCustomer = (id) => request.delete('/customer/' + id)

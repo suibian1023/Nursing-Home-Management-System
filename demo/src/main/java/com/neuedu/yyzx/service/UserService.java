@@ -12,7 +12,7 @@ import com.neuedu.yyzx.utils.ResultVo;
  */
 public interface UserService extends IService<User> {
 
-    ResultVo<Page<UserVo>> selectPageVo(Long current, Long size, String username);
+    ResultVo<Page<UserVo>> selectPageVo(Long current, Long size, String keyword);
 
     ResultVo<UserVo> login(String username, String password);
 }

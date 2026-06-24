@@ -9,6 +9,8 @@
         <result column="out_date" property="outDate"/>
         <result column="reason" property="reason"/>
         <result column="expect_back_date" property="expectBackDate"/>
+        <result column="accompany_name" property="accompanyName"/>
+        <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
         <result column="is_deleted" property="isDeleted"/>
     </resultMap>
@@ -19,7 +21,7 @@
 
     <sql id="Base_Column_List">
         o.id, o.customer_id, o.customer_name, o.out_date, o.reason,
-        o.expect_back_date, o.create_time, o.is_deleted
+        o.expect_back_date, o.accompany_name, o.status, o.create_time, o.is_deleted
     </sql>
 
     <select id="selectOutwardVo" resultMap="VoResultMap">
@@ -35,12 +37,10 @@
                   AND bd2.is_deleted = 0
                   AND bd2.back_date >= o.out_date
             )
-        <where>
-            o.is_deleted = 0
-            <if test="customerName != null and customerName != ''">
-                AND o.customer_name LIKE CONCAT('%', #{customerName}, '%')
-            </if>
-        </where>
+        WHERE o.is_deleted = 0
+        <if test="customerName != null and customerName != ''">
+            AND o.customer_name LIKE CONCAT('%', #{customerName}, '%')
+        </if>
         ORDER BY o.out_date DESC, o.create_time DESC
     </select>
 

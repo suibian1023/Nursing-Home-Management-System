@@ -10,7 +10,7 @@
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="customerName" label="客户" width="100" />
         <el-table-column prop="outDate" label="外出日期" width="110" />
-        <el-table-column prop="backDate" label="预计返回" width="110" />
+        <el-table-column prop="expectBackDate" label="预计返回" width="110" />
         <el-table-column prop="reason" label="外出原因" min-width="160" show-overflow-tooltip />
         <el-table-column prop="accompanyName" label="陪同人" width="100" />
         <el-table-column label="状态" width="80">
@@ -32,7 +32,7 @@
       <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="客户ID" prop="customerId"><el-input-number v-model="form.customerId" :min="1" style="width:100%" /></el-form-item>
         <el-form-item label="外出日期" prop="outDate"><el-date-picker v-model="form.outDate" type="date" value-format="YYYY-MM-DD" style="width:100%" /></el-form-item>
-        <el-form-item label="预计返回" prop="backDate"><el-date-picker v-model="form.backDate" type="date" value-format="YYYY-MM-DD" style="width:100%" /></el-form-item>
+        <el-form-item label="预计返回" prop="expectBackDate"><el-date-picker v-model="form.expectBackDate" type="date" value-format="YYYY-MM-DD" style="width:100%" /></el-form-item>
         <el-form-item label="外出原因" prop="reason"><el-input v-model="form.reason" type="textarea" /></el-form-item>
         <el-form-item label="陪同人" prop="accompanyName"><el-input v-model="form.accompanyName" /></el-form-item>
       </el-form>
@@ -51,7 +51,7 @@ import { getOutwardPage, addOutward, updateOutward, deleteOutward } from '@/api'
 
 const loading = ref(false); const tableData = ref([]); const total = ref(0); const dialogVisible = ref(false); const isEdit = ref(false); const formRef = ref()
 const search = reactive({ pageNum: 1, pageSize: 10, keyword: '' })
-const form = reactive({ id: null, customerId: null, outDate: '', backDate: '', reason: '', accompanyName: '' })
+const form = reactive({ id: null, customerId: null, customerName: '', outDate: '', expectBackDate: '', reason: '', accompanyName: '', status: 0 })
 const rules = { customerId: [{ required: true, message: '请输入客户ID', trigger: 'blur' }] }
 
 const loadData = async () => { loading.value = true; try { const res = await getOutwardPage(search); tableData.value = res.data?.records || []; total.value = res.data?.total || 0 } finally { loading.value = false } }
@@ -59,7 +59,7 @@ const openAdd = () => { isEdit.value = false; resetForm(); dialogVisible.value =
 const openEdit = (row) => { isEdit.value = true; Object.assign(form, row); dialogVisible.value = true }
 const handleDelete = async (id) => { await ElMessageBox.confirm('确定删除吗？', '提示', { type: 'warning' }); await deleteOutward(id); ElMessage.success('删除成功'); loadData() }
 const handleSubmit = async () => { const valid = await formRef.value.validate().catch(() => false); if (!valid) return; if (isEdit.value) { await updateOutward(form); ElMessage.success('修改成功') } else { await addOutward(form); ElMessage.success('新增成功') }; dialogVisible.value = false; loadData() }
-const resetForm = () => { Object.assign(form, { id: null, customerId: null, outDate: '', backDate: '', reason: '', accompanyName: '' }); formRef.value?.resetFields() }
+const resetForm = () => { Object.assign(form, { id: null, customerId: null, customerName: '', outDate: '', expectBackDate: '', reason: '', accompanyName: '', status: 0 }); formRef.value?.resetFields() }
 onMounted(loadData)
 </script>
 <style scoped>.search-bar{display:flex;gap:12px}</style>

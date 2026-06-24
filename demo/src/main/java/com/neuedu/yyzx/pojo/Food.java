@@ -42,6 +42,10 @@ public class Food implements Serializable {
     @Schema(description = "描述")
     private String description;
 
+    @Schema(description = "图片地址")
+    @TableField("image_url")
+    private String imageUrl;
+
     @Schema(description = "逻辑删除标记 0=显示 1=隐藏")
     @TableField("is_deleted")
     @TableLogic(value = "0", delval = "1")

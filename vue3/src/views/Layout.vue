@@ -11,54 +11,25 @@
         text-color="#bfcbd9"
         active-text-color="#409EFF"
       >
-        <el-menu-item index="/dashboard">
-          <el-icon><HomeFilled /></el-icon>
-          <span>工作台</span>
-        </el-menu-item>
-        <el-sub-menu index="system">
-          <template #title>
-            <el-icon><Setting /></el-icon>
-            <span>系统管理</span>
-          </template>
-          <el-menu-item index="/user">用户管理</el-menu-item>
-          <el-menu-item index="/role">角色管理</el-menu-item>
-          <el-menu-item index="/menu">菜单管理</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="elder">
-          <template #title>
-            <el-icon><UserFilled /></el-icon>
-            <span>老人管理</span>
-          </template>
-          <el-menu-item index="/customer">客户管理</el-menu-item>
-          <el-menu-item index="/outward">外出管理</el-menu-item>
-          <el-menu-item index="/backdown">退住管理</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="resource">
-          <template #title>
-            <el-icon><OfficeBuilding /></el-icon>
-            <span>资源管理</span>
-          </template>
-          <el-menu-item index="/room">房间管理</el-menu-item>
-          <el-menu-item index="/bed">床位管理</el-menu-item>
-          <el-menu-item index="/beddiagram">房位示意图</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="nurse">
-          <template #title>
-            <el-icon><Stamp /></el-icon>
-            <span>护理管理</span>
-          </template>
-          <el-menu-item index="/nurselevel">护理等级</el-menu-item>
-          <el-menu-item index="/nursecontent">护理内容</el-menu-item>
-          <el-menu-item index="/nurserecord">护理记录</el-menu-item>
-        </el-sub-menu>
-        <el-sub-menu index="meal-group">
-          <template #title>
-            <el-icon><Food /></el-icon>
-            <span>餐饮管理</span>
-          </template>
-          <el-menu-item index="/food">菜品管理</el-menu-item>
-          <el-menu-item index="/meal">套餐管理</el-menu-item>
-        </el-sub-menu>
+        <template v-for="menu in visibleMenus" :key="menu.key">
+          <!-- 叶子菜单 -->
+          <el-menu-item v-if="!menu.children || menu.children.length === 0" :index="menu.path">
+            <el-icon><component :is="menu.icon" /></el-icon>
+            <span>{{ menu.title }}</span>
+          </el-menu-item>
+          <!-- 子菜单 -->
+          <el-sub-menu v-else :index="menu.key">
+            <template #title>
+              <el-icon><component :is="menu.icon" /></el-icon>
+              <span>{{ menu.title }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in menu.children"
+              :key="child.key"
+              :index="child.path"
+            >{{ child.title }}</el-menu-item>
+          </el-sub-menu>
+        </template>
       </el-menu>
     </el-aside>
     <el-container>
@@ -70,7 +41,10 @@
           </el-breadcrumb>
         </div>
         <div class="topbar-right">
-          <span class="username">{{ userStore.userInfo?.realName || userStore.userInfo?.username || '管理员' }}</span>
+          <el-tag size="small" :type="userStore.userInfo?.roleId === 1 ? 'danger' : 'success'">
+            {{ userStore.userInfo?.roleName || '用户' }}
+          </el-tag>
+          <span class="username">{{ userStore.userInfo?.nickname || userStore.userInfo?.username || '管理员' }}</span>
           <el-button text @click="handleLogout">退出登录</el-button>
         </div>
       </el-header>
@@ -82,9 +56,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { getMenuByRole } from '@/api'
+import {
+  HomeFilled, Setting, UserFilled, OfficeBuilding, Stamp, Food,
+  User, Avatar, Menu as MenuIcon, House, Grid, Document,
+  Promotion, Remove, List
+} from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -92,6 +72,77 @@ const userStore = useUserStore()
 
 const activeMenu = computed(() => route.path)
 const currentTitle = computed(() => route.meta?.title || '')
+
+// 完整菜单配置（与数据库 menusIndex 对应）
+const allMenus = [
+  {
+    key: 'dashboard', title: '工作台', icon: HomeFilled, path: '/dashboard'
+  },
+  {
+    key: 'system', title: '系统管理', icon: Setting, children: [
+      { key: 'system-user', title: '用户管理', path: '/user' }
+    ]
+  },
+  {
+    key: 'customer', title: '老人管理', icon: UserFilled, children: [
+      { key: 'customer-info', title: '客户管理', path: '/customer' },
+      { key: 'customer-out', title: '外出管理', path: '/outward' },
+      { key: 'customer-back', title: '退住管理', path: '/backdown' }
+    ]
+  },
+  {
+    key: 'resource', title: '资源管理', icon: OfficeBuilding, children: [
+      { key: 'room', title: '房间管理', path: '/room' },
+      { key: 'bed', title: '床位管理', path: '/bed' },
+      { key: 'bed-diagram', title: '房位示意图', path: '/beddiagram' }
+    ]
+  },
+  {
+    key: 'nursing', title: '护理管理', icon: Stamp, children: [
+      { key: 'nurse-level', title: '护理等级', path: '/nurselevel' },
+      { key: 'nurse-content', title: '护理内容', path: '/nursecontent' },
+      { key: 'nurse-record', title: '护理记录', path: '/nurserecord' }
+    ]
+  },
+  {
+    key: 'meal-group', title: '餐饮管理', icon: Food, children: [
+      { key: 'food-item', title: '菜品管理', path: '/food' },
+      { key: 'food-meal', title: '套餐管理', path: '/meal' }
+    ]
+  }
+]
+
+// 当前可见菜单
+const visibleMenus = ref(allMenus)
+
+onMounted(async () => {
+  const roleId = userStore.userInfo?.roleId
+  if (roleId === 1) {
+    // 管理员：显示所有菜单
+    visibleMenus.value = allMenus
+  } else if (roleId) {
+    // 非管理员：从后端获取允许的菜单
+    try {
+      const res = await getMenuByRole(roleId)
+      const allowedKeys = new Set((res.data || []).map(m => m.menusIndex))
+      // 过滤菜单：保留有权限的菜单项
+      visibleMenus.value = allMenus
+        .map(menu => {
+          if (!menu.children) {
+            return allowedKeys.has(menu.key) ? menu : null
+          }
+          const visibleChildren = menu.children.filter(c => allowedKeys.has(c.key))
+          return visibleChildren.length > 0
+            ? { ...menu, children: visibleChildren }
+            : null
+        })
+        .filter(Boolean)
+    } catch (e) {
+      console.error('获取菜单权限失败:', e)
+      visibleMenus.value = allMenus
+    }
+  }
+})
 
 const handleLogout = () => {
   userStore.logout()

@@ -14,6 +14,8 @@
         </el-table-column>
         <el-table-column prop="age" label="年龄" width="70" />
         <el-table-column prop="phone" label="手机号" width="130" />
+        <el-table-column prop="relativePhone" label="亲属手机号" width="130" />
+        <el-table-column prop="nurseLevelName" label="护理等级" width="100" />
         <el-table-column prop="idCard" label="身份证号" width="180" />
         <el-table-column prop="checkinDate" label="入住日期" width="110" />
         <el-table-column prop="bedNo" label="床位号" width="100" />
@@ -53,14 +55,24 @@
             <el-form-item label="年龄" prop="age"><el-input-number v-model="form.age" :min="0" :max="150" style="width:100%" /></el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="手机号" prop="phone"><el-input v-model="form.phone" /></el-form-item>
+            <el-form-item label="手机号" prop="phone"><el-input v-model="form.phone" maxlength="11" @input="form.phone = form.phone.replace(/\D/g, '')" /></el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="身份证号" prop="idCard"><el-input v-model="form.idCard" /></el-form-item>
+            <el-form-item label="亲属手机号" prop="relativePhone"><el-input v-model="form.relativePhone" maxlength="11" @input="form.relativePhone = form.relativePhone.replace(/\D/g, '')" /></el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="身份证号" prop="idCard"><el-input v-model="form.idCard" maxlength="18" @input="form.idCard = form.idCard.replace(/[^\dXx]/g, '')" /></el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="入住日期" prop="checkinDate">
               <el-date-picker v-model="form.checkinDate" type="date" value-format="YYYY-MM-DD" style="width:100%" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="护理等级" prop="nurseLevelId">
+              <el-select v-model="form.nurseLevelId" style="width:100%" placeholder="请选择护理等级" clearable>
+                <el-option v-for="nl in nurseLevelList" :key="nl.id" :label="nl.levelName" :value="nl.id" />
+              </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -107,7 +119,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getCustomerPage, addCustomer, updateCustomer, deleteCustomer, getCustomerById, getRoomList, getBedList } from '@/api'
+import { getCustomerPage, addCustomer, updateCustomer, deleteCustomer, getCustomerById, getRoomList, getBedList, getNurseLevelList } from '@/api'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -119,14 +131,43 @@ const formRef = ref()
 const search = reactive({ pageNum: 1, pageSize: 10, keyword: '' })
 
 const form = reactive({
-  id: null, name: '', gender: 1, age: null, phone: '', idCard: '', checkinDate: '', address: '', remark: '',
-  roomNo: '', bedId: null
+  id: null, name: '', gender: 1, age: null, phone: '', relativePhone: '', idCard: '', checkinDate: '', address: '', remark: '',
+  roomNo: '', bedId: null, nurseLevelId: null
 })
+
+const validatePhone = (rule, value, callback) => {
+  if (value && !/^\d{11}$/.test(value)) {
+    ElMessage.warning('手机号必须为11位数字')
+    callback(new Error('手机号必须为11位数字'))
+  } else {
+    callback()
+  }
+}
+
+const validateRelativePhone = (rule, value, callback) => {
+  if (value && !/^\d{11}$/.test(value)) {
+    ElMessage.warning('亲属手机号必须为11位数字')
+    callback(new Error('亲属手机号必须为11位数字'))
+  } else {
+    callback()
+  }
+}
+
+const validateIdCard = (rule, value, callback) => {
+  if (value && !/^\d{17}[\dXx]$/.test(value)) {
+    ElMessage.warning('身份证号必须为18位数字（最后一位可为X）')
+    callback(new Error('身份证号必须为18位数字（最后一位可为X）'))
+  } else {
+    callback()
+  }
+}
 
 const rules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
-  phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }]
+  phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }, { validator: validatePhone, trigger: 'blur' }],
+  relativePhone: [{ validator: validateRelativePhone, trigger: 'blur' }],
+  idCard: [{ validator: validateIdCard, trigger: 'blur' }]
 }
 
 // 楼层/房间/床位级联
@@ -135,6 +176,7 @@ const floorMap = { '一楼': '1层', '二楼': '2层', '三楼': '3层' }
 const selectedFloor = ref('')
 const allRooms = ref([])
 const allBeds = ref([])
+const nurseLevelList = ref([])
 
 const floorRooms = computed(() => {
   if (!selectedFloor.value) return []
@@ -158,9 +200,10 @@ const onRoomChange = () => {
 
 const loadRoomBedData = async () => {
   try {
-    const [roomRes, bedRes] = await Promise.all([getRoomList(), getBedList()])
+    const [roomRes, bedRes, nurseRes] = await Promise.all([getRoomList(), getBedList(), getNurseLevelList()])
     allRooms.value = roomRes.data || []
     allBeds.value = bedRes.data || []
+    nurseLevelList.value = nurseRes.data || []
   } catch (e) {
     console.error('加载房间床位数据失败:', e)
   }
@@ -214,7 +257,7 @@ const handleSubmit = async () => {
 }
 
 const resetForm = () => {
-  Object.assign(form, { id: null, name: '', gender: 1, age: null, phone: '', idCard: '', checkinDate: '', address: '', remark: '', roomNo: '', bedId: null })
+  Object.assign(form, { id: null, name: '', gender: 1, age: null, phone: '', relativePhone: '', idCard: '', checkinDate: '', address: '', remark: '', roomNo: '', bedId: null, nurseLevelId: null })
   selectedFloor.value = ''
   formRef.value?.resetFields()
 }

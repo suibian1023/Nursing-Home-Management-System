@@ -20,10 +20,10 @@ public class BackdownController {
 
     @Operation(summary = "分页查询归来记录")
     @GetMapping("/page")
-    public ResultVo<Page<BackdownVo>> page(@RequestParam(defaultValue = "1") Long current,
-                                            @RequestParam(defaultValue = "10") Long size,
-                                            @RequestParam(required = false) String customerName) {
-        return backdownService.selectBackdownVo(current, size, customerName);
+    public ResultVo<Page<BackdownVo>> page(@RequestParam(defaultValue = "1") Long pageNum,
+                                            @RequestParam(defaultValue = "10") Long pageSize,
+                                            @RequestParam(required = false) String keyword) {
+        return backdownService.selectBackdownVo(pageNum, pageSize, keyword);
     }
 
     @Operation(summary = "新增归来记录")

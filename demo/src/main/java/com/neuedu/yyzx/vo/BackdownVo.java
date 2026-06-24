@@ -16,4 +16,10 @@ public class BackdownVo extends Backdown {
 
     @Schema(description = "返院日期字符串")
     private String backDateStr;
+
+    @Schema(description = "房间号")
+    private String roomNo;
+
+    @Schema(description = "床位号")
+    private String bedNo;
 }

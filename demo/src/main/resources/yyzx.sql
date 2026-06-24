@@ -222,6 +222,7 @@ CREATE TABLE `nurserecord` (
     `nurse_content_id` INT          DEFAULT NULL            COMMENT '护理内容ID',
     `record_date`      DATE         DEFAULT NULL            COMMENT '记录日期',
     `nurse_time`       VARCHAR(50)  DEFAULT NULL            COMMENT '护理时间',
+    `staff_name`       VARCHAR(100) DEFAULT NULL            COMMENT '护理人员',
     `description`      VARCHAR(255) DEFAULT NULL            COMMENT '描述',
     `create_time`      DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `is_deleted`       INT          DEFAULT 0               COMMENT '逻辑删除:0=显示,1=隐藏',

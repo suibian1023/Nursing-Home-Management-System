@@ -17,9 +17,9 @@ import org.springframework.stereotype.Service;
 public class MealServiceImpl extends ServiceImpl<MealMapper, Meal> implements MealService {
 
     @Override
-    public ResultVo<Page<MealVo>> selectMealVo(Long current, Long size, String customerName) {
+    public ResultVo<Page<MealVo>> selectMealVo(Long current, Long size, String mealName) {
         Page<MealVo> page = new Page<>(current, size);
-        page = baseMapper.selectMealVo(page, customerName);
+        page = baseMapper.selectMealVo(page, mealName);
         return ResultVo.ok(page);
     }
 }

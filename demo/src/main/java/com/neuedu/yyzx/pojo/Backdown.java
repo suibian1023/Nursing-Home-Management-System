@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -38,7 +40,14 @@ public class Backdown implements Serializable {
 
     @Schema(description = "返回日期")
     @TableField("back_date")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date backDate;
+
+    @Schema(description = "退住原因")
+    private String reason;
+
+    @Schema(description = "备注")
+    private String remark;
 
     @Schema(description = "逻辑删除标记 0=显示 1=隐藏")
     @TableField("is_deleted")

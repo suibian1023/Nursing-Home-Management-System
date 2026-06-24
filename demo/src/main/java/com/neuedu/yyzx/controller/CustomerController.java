@@ -1,5 +1,6 @@
 package com.neuedu.yyzx.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.neuedu.yyzx.pojo.Bed;
 import com.neuedu.yyzx.pojo.Customer;
@@ -25,10 +26,18 @@ public class CustomerController {
 
     @Operation(summary = "分页查询客户")
     @GetMapping("/page")
-    public ResultVo<Page<CustomerVo>> page(@RequestParam(defaultValue = "1") Long current,
-                                            @RequestParam(defaultValue = "10") Long size,
-                                            @RequestParam(required = false) String customerName) {
-        return customerService.selectPageVo(current, size, customerName);
+    public ResultVo<Page<CustomerVo>> page(@RequestParam(defaultValue = "1") Long pageNum,
+                                            @RequestParam(defaultValue = "10") Long pageSize,
+                                            @RequestParam(required = false) String keyword) {
+        return customerService.selectPageVo(pageNum, pageSize, keyword);
+    }
+
+    @Operation(summary = "查询所有客户(下拉用)")
+    @GetMapping("/list")
+    public ResultVo<java.util.List<Customer>> list() {
+        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Customer::getIsDeleted, 0);
+        return ResultVo.ok(customerService.list(wrapper));
     }
 
     @Operation(summary = "新增客户")

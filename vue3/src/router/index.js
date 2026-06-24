@@ -25,18 +25,6 @@ const routes = [
         meta: { title: '用户管理', icon: 'User' }
       },
       {
-        path: 'role',
-        name: 'RoleList',
-        component: () => import('@/views/role/RoleList.vue'),
-        meta: { title: '角色管理', icon: 'Avatar' }
-      },
-      {
-        path: 'menu',
-        name: 'MenuList',
-        component: () => import('@/views/menu/MenuList.vue'),
-        meta: { title: '菜单管理', icon: 'Menu' }
-      },
-      {
         path: 'customer',
         name: 'CustomerList',
         component: () => import('@/views/customer/CustomerList.vue'),

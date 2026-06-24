@@ -27,10 +27,10 @@ public class UserController {
 
     @Operation(summary = "分页查询用户")
     @GetMapping("/page")
-    public ResultVo<Page<UserVo>> page(@RequestParam(defaultValue = "1") Long current,
-                                        @RequestParam(defaultValue = "10") Long size,
-                                        @RequestParam(required = false) String username) {
-        return userService.selectPageVo(current, size, username);
+    public ResultVo<Page<UserVo>> page(@RequestParam(defaultValue = "1") Long pageNum,
+                                        @RequestParam(defaultValue = "10") Long pageSize,
+                                        @RequestParam(required = false) String keyword) {
+        return userService.selectPageVo(pageNum, pageSize, keyword);
     }
 
     @Operation(summary = "新增用户")

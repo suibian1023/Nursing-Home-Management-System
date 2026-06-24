@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -37,12 +39,17 @@ public class Nurserecord implements Serializable {
     private Integer nurseContentId;
 
     @Schema(description = "记录日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @TableField("record_date")
     private Date recordDate;
 
     @Schema(description = "护理时间")
     @TableField("nurse_time")
     private String nurseTime;
+
+    @Schema(description = "护理人员")
+    @TableField("staff_name")
+    private String staffName;
 
     @Schema(description = "描述")
     private String description;
@@ -53,6 +60,7 @@ public class Nurserecord implements Serializable {
     private Integer isDeleted;
 
     @Schema(description = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField("create_time")
     private Date createTime;
 }

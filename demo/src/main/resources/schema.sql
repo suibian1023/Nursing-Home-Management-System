@@ -136,6 +136,7 @@ CREATE TABLE nurserecord (
     nurse_content_id INT          DEFAULT NULL            COMMENT '护理内容ID',
     record_date      DATETIME     DEFAULT NULL            COMMENT '记录日期',
     nurse_time       VARCHAR(255) DEFAULT NULL            COMMENT '护理时间',
+    staff_name       VARCHAR(100) DEFAULT NULL            COMMENT '护理人员',
     description      VARCHAR(500) DEFAULT NULL            COMMENT '描述',
     is_deleted       INT          NOT NULL DEFAULT 0      COMMENT '逻辑删除标记',
     create_time      DATETIME     DEFAULT NULL            COMMENT '创建时间',

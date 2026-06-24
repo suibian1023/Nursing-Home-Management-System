@@ -9,6 +9,7 @@
         <result column="customer_age" property="customerAge"/>
         <result column="id_card" property="idCard"/>
         <result column="phone" property="phone"/>
+        <result column="relative_phone" property="relativePhone"/>
         <result column="address" property="address"/>
         <result column="checkin_date" property="checkinDate"/>
         <result column="room_no" property="roomNo"/>
@@ -30,7 +31,7 @@
 
     <sql id="Base_Column_List">
         c.id, c.customer_name, c.customer_sex, c.customer_age, c.id_card,
-        c.phone, c.address, c.checkin_date, c.room_no, c.bed_id,
+        c.phone, c.relative_phone, c.address, c.checkin_date, c.room_no, c.bed_id,
         c.nurse_level_id, c.user_id, c.create_time, c.is_deleted
     </sql>
 
@@ -47,12 +48,10 @@
         LEFT JOIN nurselevel nl ON c.nurse_level_id = nl.id AND nl.is_deleted = 0
         LEFT JOIN user u ON c.user_id = u.id AND u.is_deleted = 0
         LEFT JOIN bed b ON c.bed_id = b.id AND b.is_deleted = 0
-        <where>
-            c.is_deleted = 0
-            <if test="customerName != null and customerName != ''">
-                AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
-            </if>
-        </where>
+        WHERE c.is_deleted = 0
+        <if test="customerName != null and customerName != ''">
+            AND c.customer_name LIKE CONCAT('%', #{customerName}, '%')
+        </if>
         ORDER BY c.create_time DESC
     </select>
 

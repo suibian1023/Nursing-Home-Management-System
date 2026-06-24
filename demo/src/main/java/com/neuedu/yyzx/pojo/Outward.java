@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -38,6 +40,7 @@ public class Outward implements Serializable {
 
     @Schema(description = "外出日期")
     @TableField("out_date")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date outDate;
 
     @Schema(description = "外出原因")
@@ -45,7 +48,15 @@ public class Outward implements Serializable {
 
     @Schema(description = "预计返回日期")
     @TableField("expect_back_date")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date expectBackDate;
+
+    @Schema(description = "陪同人")
+    @TableField("accompany_name")
+    private String accompanyName;
+
+    @Schema(description = "状态 0=外出中 1=已返回")
+    private Integer status;
 
     @Schema(description = "逻辑删除标记 0=显示 1=隐藏")
     @TableField("is_deleted")

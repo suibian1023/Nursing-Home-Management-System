@@ -8,6 +8,7 @@
         <result column="nurse_content_id" property="nurseContentId"/>
         <result column="record_date" property="recordDate"/>
         <result column="nurse_time" property="nurseTime"/>
+        <result column="staff_name" property="staffName"/>
         <result column="description" property="description"/>
         <result column="create_time" property="createTime"/>
         <result column="is_deleted" property="isDeleted"/>
@@ -20,7 +21,7 @@
 
     <sql id="Base_Column_List">
         nr.id, nr.customer_id, nr.nurse_content_id, nr.record_date,
-        nr.nurse_time, nr.description, nr.create_time, nr.is_deleted
+        nr.nurse_time, nr.staff_name, nr.description, nr.create_time, nr.is_deleted
     </sql>
 
     <select id="selectNurseRecordsVo" resultMap="VoResultMap">

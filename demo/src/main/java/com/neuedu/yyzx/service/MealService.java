@@ -12,5 +12,5 @@ import com.neuedu.yyzx.utils.ResultVo;
  */
 public interface MealService extends IService<Meal> {
 
-    ResultVo<Page<MealVo>> selectMealVo(Long current, Long size, String customerName);
+    ResultVo<Page<MealVo>> selectMealVo(Long current, Long size, String mealName);
 }

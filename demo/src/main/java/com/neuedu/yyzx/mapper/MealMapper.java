@@ -12,5 +12,5 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface MealMapper extends BaseMapper<Meal> {
 
-    Page<MealVo> selectMealVo(Page<MealVo> page, @Param("customerName") String customerName);
+    Page<MealVo> selectMealVo(Page<MealVo> page, @Param("mealName") String mealName);
 }
