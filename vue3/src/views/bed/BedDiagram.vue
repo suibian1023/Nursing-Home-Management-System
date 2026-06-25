@@ -162,8 +162,9 @@ onMounted(() => {
 
 .floor-selector label {
   margin-right: 10px;
-  color: #606266;
+  color: #5f5f5d;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .status-overview {
@@ -176,34 +177,36 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 6px 16px;
-  background-color: #f4f6f8;
-  border-radius: 4px;
+  background-color: #fcfbf8;
+  border: 1px solid #eceae4;
+  border-radius: 8px;
 }
 
 .status-item .label {
   font-size: 13px;
-  color: #909399;
+  color: #5f5f5d;
+  font-weight: 500;
 }
 
 .status-item .value {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .status-item.occupied .value {
-  color: #e74c3c;
+  color: #c0392b;
 }
 
 .status-item.vacant .value {
-  color: #7f8c8d;
+  color: #5f5f5d;
 }
 
 .status-item.cleaning .value {
-  color: #e6a23c;
+  color: #b8860b;
 }
 
 .status-item.total .value {
-  color: #409EFF;
+  color: #1c1c1c;
 }
 
 .bed-grid-container {
@@ -217,10 +220,9 @@ onMounted(() => {
 }
 
 .grid-item {
-  border-radius: 6px;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  background-color: #fcfbf8;
+  border: 1px solid #eceae4;
   overflow: hidden;
 }
 
@@ -230,8 +232,10 @@ onMounted(() => {
 
 .room-number {
   font-size: 14px;
-  color: #303133;
-  border-bottom: 1px solid #f1f1f1;
+  color: #1c1c1c;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  border-bottom: 1px solid #eceae4;
   padding-bottom: 6px;
   margin-bottom: 8px;
 }
@@ -247,31 +251,33 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 6px 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  border: 1px solid #eceae4;
+  border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
+  background-color: #fcfbf8;
 }
 
 .bed-card:hover {
-  background-color: #f5f7fa;
+  background-color: #faf8f3;
 }
 
 .bed-card.occupied {
-  border-left: 3px solid #e74c3c;
+  border-left: 3px solid rgba(192,57,43,0.4);
 }
 
 .bed-card.vacant {
-  border-left: 3px solid #67c23a;
+  border-left: 3px solid rgba(45,106,79,0.4);
 }
 
 .bed-card.cleaning {
-  border-left: 3px solid #e6a23c;
+  border-left: 3px solid rgba(184,134,11,0.4);
 }
 
 .bed-id {
   font-size: 12px;
-  color: #606266;
+  color: #5f5f5d;
+  font-weight: 500;
 }
 
 .bed-status-icon {
@@ -279,15 +285,15 @@ onMounted(() => {
 }
 
 .icon-occupied {
-  color: #e74c3c;
+  color: #c0392b;
 }
 
 .icon-cleaning {
-  color: #e6a23c;
+  color: #b8860b;
 }
 
 .icon-vacant {
-  color: #c0c4cc;
+  color: #2d6a4f;
 }
 
 @media (max-width: 1400px) {

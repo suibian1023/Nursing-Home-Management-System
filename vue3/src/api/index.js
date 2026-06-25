@@ -85,3 +85,15 @@ export const getBackdownPage = (params) => request.get('/backdown/page', { param
 export const addBackdown = (data) => request.post('/backdown', data)
 export const updateBackdown = (data) => request.put('/backdown', data)
 export const deleteBackdown = (id) => request.delete('/backdown/' + id)
+
+// 点餐
+export const getFoodOrderPage = (params) => request.get('/foodorder/page', { params })
+export const addFoodOrder = (data) => request.post('/foodorder', data)
+export const updateFoodOrder = (data) => request.put('/foodorder', data)
+export const deleteFoodOrder = (id) => request.delete('/foodorder/' + id)
+
+// 呼叫
+export const getCallRecordPage = (params) => request.get('/callrecord/page', { params })
+export const addCallRecord = (data) => request.post('/callrecord', data)
+export const respondCall = (id) => request.put('/callrecord/' + id + '/respond')
+export const deleteCallRecord = (id) => request.delete('/callrecord/' + id)

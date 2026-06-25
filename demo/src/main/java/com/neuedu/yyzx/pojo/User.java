@@ -51,6 +51,10 @@ public class User implements Serializable {
     @TableField("role_id")
     private Integer roleId;
 
+    @Schema(description = "关联客户ID")
+    @TableField("customer_id")
+    private Integer customerId;
+
     @Schema(description = "头像")
     private String avatar;
 

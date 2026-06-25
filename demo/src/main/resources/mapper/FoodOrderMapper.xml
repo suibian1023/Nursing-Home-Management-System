@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.neuedu.yyzx.mapper.FoodOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.neuedu.yyzx.pojo.FoodOrder">
+        <id column="id" property="id"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="room_no" property="roomNo"/>
+        <result column="items" property="items"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="is_deleted" property="isDeleted"/>
+        <result column="customer_name" property="customerName"/>
+    </resultMap>
+
+    <select id="selectOrderPage" resultMap="BaseResultMap">
+        SELECT fo.*, c.customer_name
+        FROM food_order fo
+        LEFT JOIN customer c ON fo.customer_id = c.id AND c.is_deleted = 0
+        WHERE fo.is_deleted = 0
+        <if test="keyword != null and keyword != ''">
+            AND (c.customer_name LIKE CONCAT('%', #{keyword}, '%')
+                 OR fo.room_no LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY fo.create_time DESC
+    </select>
+
+</mapper>

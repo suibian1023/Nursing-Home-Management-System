@@ -28,10 +28,10 @@ import { ref, onMounted } from 'vue'
 import { getCustomerPage, getBedList } from '@/api'
 
 const cards = ref([
-  { title: '在住老人', value: 0, icon: 'UserFilled', color: '#409EFF' },
-  { title: '总床位', value: 0, icon: 'OfficeBuilding', color: '#67C23A' },
-  { title: '空余床位', value: 0, icon: 'HomeFilled', color: '#E6A23C' },
-  { title: '员工人数', value: 0, icon: 'Avatar', color: '#F56C6C' }
+  { title: '在住老人', value: 0, icon: 'UserFilled', color: '#1c1c1c' },
+  { title: '总床位', value: 0, icon: 'OfficeBuilding', color: '#2d6a4f' },
+  { title: '空余床位', value: 0, icon: 'HomeFilled', color: '#b8860b' },
+  { title: '员工人数', value: 0, icon: 'Avatar', color: '#c0392b' }
 ])
 
 onMounted(async () => {
@@ -54,7 +54,7 @@ onMounted(async () => {
 
 <style scoped>
 .stat-card { display: flex; align-items: center; gap: 16px; }
-.stat-icon { width: 56px; height: 56px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; }
-.stat-value { font-size: 24px; font-weight: bold; color: #303133; }
-.stat-title { font-size: 13px; color: #909399; margin-top: 4px; }
+.stat-icon { width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fcfbf8; }
+.stat-value { font-size: 28px; font-weight: 600; color: #1c1c1c; letter-spacing: -1px; }
+.stat-title { font-size: 13px; color: #5f5f5d; margin-top: 4px; font-weight: 500; }
 </style>

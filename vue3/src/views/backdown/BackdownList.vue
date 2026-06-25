@@ -30,7 +30,7 @@
           <el-select v-model="form.customerId" style="width:100%" filterable placeholder="搜索并选择老人" @change="onCustomerChange">
             <el-option v-for="c in customerList" :key="c.id" :label="c.name" :value="c.id">
               <span>{{ c.name }}</span>
-              <span style="color:#999;font-size:12px;margin-left:8px">{{ c.roomNo || '未分配房间' }}</span>
+              <span style="color:#5f5f5d;font-size:12px;margin-left:8px">{{ c.roomNo || '未分配房间' }}</span>
             </el-option>
           </el-select>
         </el-form-item>

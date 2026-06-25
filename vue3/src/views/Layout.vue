@@ -7,9 +7,9 @@
       <el-menu
         :default-active="activeMenu"
         router
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
+        background-color="#1c1c1c"
+        text-color="rgba(252,251,248,0.65)"
+        active-text-color="#fcfbf8"
       >
         <template v-for="menu in visibleMenus" :key="menu.key">
           <!-- 叶子菜单 -->
@@ -63,7 +63,7 @@ import { getMenuByRole } from '@/api'
 import {
   HomeFilled, Setting, UserFilled, OfficeBuilding, Stamp, Food,
   User, Avatar, Menu as MenuIcon, House, Grid, Document,
-  Promotion, Remove, List
+  Promotion, Remove, List, Bell
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -73,8 +73,11 @@ const userStore = useUserStore()
 const activeMenu = computed(() => route.path)
 const currentTitle = computed(() => route.meta?.title || '')
 
-// 完整菜单配置（与数据库 menusIndex 对应）
+// 完整菜单配置
 const allMenus = [
+  {
+    key: 'welcome', title: '欢迎页', icon: HomeFilled, path: '/welcome'
+  },
   {
     key: 'dashboard', title: '工作台', icon: HomeFilled, path: '/dashboard'
   },
@@ -109,38 +112,53 @@ const allMenus = [
       { key: 'food-item', title: '菜品管理', path: '/food' },
       { key: 'food-meal', title: '套餐管理', path: '/meal' }
     ]
+  },
+  {
+    key: 'food-order', title: '点餐订单', icon: Food, path: '/order'
+  },
+  {
+    key: 'call-manage', title: '呼叫管理', icon: Bell, path: '/callmanage'
+  },
+  {
+    key: 'call-nurse', title: '呼叫管家', icon: Bell, path: '/call'
   }
 ]
+
+// 各角色的菜单白名单
+const roleMenus = {
+  1: null, // 管理员看全部
+  2: new Set(['customer-out', 'nurse-record', 'room', 'bed', 'bed-diagram', 'food-item', 'food-meal', 'food-order', 'call-manage']),
+  3: new Set(['welcome', 'food-order', 'call-nurse'])
+}
 
 // 当前可见菜单
 const visibleMenus = ref(allMenus)
 
-onMounted(async () => {
-  const roleId = userStore.userInfo?.roleId
-  if (roleId === 1) {
-    // 管理员：显示所有菜单
+onMounted(() => {
+  const roleId = userStore.userInfo?.roleId || 1
+  const allowed = roleMenus[roleId]
+
+  if (allowed === null) {
+    // 管理员：显示所有菜单（不含welcome和call-nurse，这些是给老人用的）
+    visibleMenus.value = allMenus.filter(m => !['welcome', 'call-nurse'].includes(m.key))
+  } else {
+    // 其他角色：按白名单过滤
     visibleMenus.value = allMenus
-  } else if (roleId) {
-    // 非管理员：从后端获取允许的菜单
-    try {
-      const res = await getMenuByRole(roleId)
-      const allowedKeys = new Set((res.data || []).map(m => m.menusIndex))
-      // 过滤菜单：保留有权限的菜单项
-      visibleMenus.value = allMenus
-        .map(menu => {
-          if (!menu.children) {
-            return allowedKeys.has(menu.key) ? menu : null
-          }
-          const visibleChildren = menu.children.filter(c => allowedKeys.has(c.key))
-          return visibleChildren.length > 0
-            ? { ...menu, children: visibleChildren }
-            : null
-        })
-        .filter(Boolean)
-    } catch (e) {
-      console.error('获取菜单权限失败:', e)
-      visibleMenus.value = allMenus
-    }
+      .map(menu => {
+        if (!menu.children) {
+          return allowed.has(menu.key) ? menu : null
+        }
+        const visibleChildren = menu.children.filter(c => allowed.has(c.key))
+        return visibleChildren.length > 0
+          ? { ...menu, children: visibleChildren }
+          : null
+      })
+      .filter(Boolean)
+  }
+
+  // 根据角色设置默认首页
+  if (roleId === 3 && route.path === '/dashboard') {
+    router.replace('/welcome')
   }
 })
 
@@ -152,11 +170,86 @@ const handleLogout = () => {
 
 <style scoped>
 .layout-container { height: 100vh; }
-.sidebar { background-color: #304156; overflow-y: auto; }
-.logo { height: 60px; display: flex; align-items: center; justify-content: center; }
-.logo h3 { color: #fff; font-size: 16px; margin: 0; }
-.topbar { background: #fff; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e6e6e6; padding: 0 20px; }
-.topbar-right { display: flex; align-items: center; gap: 12px; }
-.username { color: #606266; font-size: 14px; }
-.el-main { background: #f0f2f5; padding: 20px; }
+.sidebar {
+  background-color: #1c1c1c;
+  overflow-y: auto;
+  border-right: none;
+}
+.logo {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.logo h3 {
+  color: #fcfbf8;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+.topbar {
+  background: #f7f4ed;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eceae4;
+  padding: 0 20px;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.username {
+  color: rgba(28, 28, 28, 0.82);
+  font-size: 14px;
+  font-weight: 500;
+}
+.el-main {
+  background: #f7f4ed;
+  padding: 24px;
+}
+</style>
+
+<style>
+/* Non-scoped styles to penetrate el-menu internals */
+.sidebar .el-menu {
+  border-right: none !important;
+}
+.sidebar .el-menu-item {
+  margin: 2px 8px;
+  border-radius: 8px;
+  height: 44px;
+  line-height: 44px;
+  transition: all 0.15s ease;
+}
+.sidebar .el-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+.sidebar .el-menu-item.is-active {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+.sidebar .el-sub-menu__title {
+  margin: 2px 8px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+.sidebar .el-sub-menu__title:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+.sidebar .el-menu--inline {
+  background-color: transparent !important;
+}
+.sidebar .el-menu--inline .el-menu-item {
+  padding-left: 52px !important;
+  font-size: 13px;
+}
+.sidebar .el-sub-menu .el-menu-item {
+  background-color: transparent !important;
+}
+.sidebar .el-sub-menu .el-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
 </style>

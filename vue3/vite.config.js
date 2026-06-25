@@ -9,6 +9,7 @@ export default defineConfig({
     }
   },
   server: {
+    allowedHosts: ['xn--xhq8a53p4rumh0dwpl.cc.cd'],
     port: 3000,
     proxy: {
       '/yyzx': {
