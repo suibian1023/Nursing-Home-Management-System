@@ -30,8 +30,8 @@
             c.room_no AS room_no,
             b.bed_no AS bed_no
         FROM backdown bd
-        LEFT JOIN customer c ON bd.customer_id = c.id AND c.is_deleted = 0
-        LEFT JOIN bed b ON c.bed_id = b.id AND b.is_deleted = 0
+        LEFT JOIN customer c ON bd.customer_id = c.id
+        LEFT JOIN bed b ON c.bed_id = b.id
         WHERE bd.is_deleted = 0
         <if test="customerName != null and customerName != ''">
             AND bd.customer_name LIKE CONCAT(#{customerName}, '%')

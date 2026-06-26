@@ -2,7 +2,11 @@ package com.neuedu.yyzx.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.neuedu.yyzx.pojo.Backdown;
+import com.neuedu.yyzx.pojo.Bed;
+import com.neuedu.yyzx.pojo.Customer;
 import com.neuedu.yyzx.service.BackdownService;
+import com.neuedu.yyzx.service.BedService;
+import com.neuedu.yyzx.service.CustomerService;
 import com.neuedu.yyzx.utils.ResultVo;
 import com.neuedu.yyzx.vo.BackdownVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +22,12 @@ public class BackdownController {
     @Autowired
     private BackdownService backdownService;
 
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    private BedService bedService;
+
     @Operation(summary = "分页查询归来记录")
     @GetMapping("/page")
     public ResultVo<Page<BackdownVo>> page(@RequestParam(defaultValue = "1") Long pageNum,
@@ -26,9 +36,22 @@ public class BackdownController {
         return backdownService.selectBackdownVo(pageNum, pageSize, keyword);
     }
 
-    @Operation(summary = "新增归来记录")
+    @Operation(summary = "新增退住记录")
     @PostMapping
     public ResultVo<Object> save(@RequestBody Backdown backdown) {
+        if (backdown.getCustomerId() != null) {
+            Customer customer = customerService.getById(backdown.getCustomerId());
+            if (customer != null && customer.getBedId() != null) {
+                // 退住时自动将床位从占用改为待打扫
+                Bed bed = bedService.getById(customer.getBedId());
+                if (bed != null && bed.getIsUsed() != null && bed.getIsUsed() == 1) {
+                    bed.setIsUsed(2); // 占用 → 待打扫
+                    bedService.updateById(bed);
+                }
+            }
+            // 退住后从客户表中逻辑删除，仅在退住管理中留存记录
+            customerService.removeById(backdown.getCustomerId());
+        }
         boolean result = backdownService.save(backdown);
         return result ? ResultVo.ok() : ResultVo.fail("新增失败");
     }

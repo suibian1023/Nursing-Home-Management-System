@@ -27,8 +27,8 @@
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑退住记录' : '新增退住记录'" width="550px" @close="resetForm">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="90px">
         <el-form-item label="选择老人" prop="customerId">
-          <el-select v-model="form.customerId" style="width:100%" filterable placeholder="搜索并选择老人" @change="onCustomerChange">
-            <el-option v-for="c in customerList" :key="c.id" :label="c.name" :value="c.id">
+          <el-select v-model="form.customerId" style="width:100%" filterable placeholder="输入姓名搜索在住老人" @change="onCustomerChange">
+            <el-option v-for="c in dropdownList" :key="c.id" :label="c.name" :value="c.id">
               <span>{{ c.name }}</span>
               <span style="color:#5f5f5d;font-size:12px;margin-left:8px">{{ c.roomNo || '未分配房间' }}</span>
             </el-option>
@@ -92,6 +92,25 @@ const selectedCustomerBedNo = computed(() => {
   if (!c || !c.bedId) return null
   const bed = allBeds.value.find(b => b.id === c.bedId)
   return bed ? bed.bedNo : null
+})
+
+// 只显示当前在住的老人（床位状态为占用 isUsed=1）
+const activeCustomerList = computed(() => {
+  return customerList.value.filter(c => {
+    if (!c.bedId) return false
+    const bed = allBeds.value.find(b => b.id === c.bedId)
+    return bed && bed.isUsed === 1
+  })
+})
+
+// 下拉列表：新增时只显示在住老人，编辑时包含当前已退住的老人
+const dropdownList = computed(() => {
+  if (!isEdit.value || !form.customerId) return activeCustomerList.value
+  const current = customerList.value.find(c => c.id === form.customerId)
+  if (current && !activeCustomerList.value.find(c => c.id === form.customerId)) {
+    return [current, ...activeCustomerList.value]
+  }
+  return activeCustomerList.value
 })
 
 const onCustomerChange = (customerId) => {

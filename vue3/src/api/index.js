@@ -68,6 +68,12 @@ export const addNurseContent = (data) => request.post('/nursecontent', data)
 export const updateNurseContent = (data) => request.put('/nursecontent', data)
 export const deleteNurseContent = (id) => request.delete('/nursecontent/' + id)
 
+// 护理等级 <-> 护理内容 关联
+export const getNurseLevelContents = (id) => request.get('/nurselevel/' + id + '/contents')
+export const setNurseLevelContents = (id, data) => request.put('/nurselevel/' + id + '/contents', data)
+export const getNurseContentLevels = (id) => request.get('/nursecontent/' + id + '/levels')
+export const setNurseContentLevels = (id, data) => request.put('/nursecontent/' + id + '/levels', data)
+
 // 护理记录
 export const getNurseRecordPage = (params) => request.get('/nurserecord/page', { params })
 export const addNurseRecord = (data) => request.post('/nurserecord', data)

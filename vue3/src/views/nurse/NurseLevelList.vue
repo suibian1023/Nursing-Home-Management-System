@@ -11,8 +11,20 @@
         <el-table-column prop="levelName" label="等级名称" width="150" />
         <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
         <el-table-column prop="price" label="费用(元/月)" width="120" />
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="关联护理内容" min-width="260">
           <template #default="{ row }">
+            <el-tag
+              v-for="name in row.contentNames"
+              :key="name"
+              size="small"
+              style="margin-right:6px;margin-bottom:4px"
+            >{{ name }}</el-tag>
+            <span v-if="!row.contentNames || row.contentNames.length === 0" style="color:#999">未关联</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="260" fixed="right">
+          <template #default="{ row }">
+            <el-button size="small" type="warning" @click="openContentDialog(row)">关联内容</el-button>
             <el-button size="small" @click="openEdit(row)">编辑</el-button>
             <el-button size="small" type="danger" @click="handleDelete(row.id)">删除</el-button>
           </template>
@@ -37,13 +49,39 @@
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="contentDialogVisible" title="关联护理内容" width="560px">
+      <div style="margin-bottom:12px;color:#666">
+        当前护理等级：<strong>{{ currentLevel.levelName }}</strong>
+      </div>
+      <el-checkbox-group v-model="selectedContentIds">
+        <el-checkbox
+          v-for="item in allContents"
+          :key="item.id"
+          :label="item.id"
+          style="display:block;margin-bottom:8px"
+        >
+          {{ item.contentName }}
+          <span v-if="item.description" style="color:#999;font-size:12px;margin-left:8px">
+            - {{ item.description }}
+          </span>
+        </el-checkbox>
+      </el-checkbox-group>
+      <template #footer>
+        <el-button @click="contentDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveContents">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getNurseLevelList, addNurseLevel, updateNurseLevel, deleteNurseLevel } from '@/api'
+import {
+  getNurseLevelList, addNurseLevel, updateNurseLevel, deleteNurseLevel,
+  getNurseContentList, getNurseLevelContents, setNurseLevelContents
+} from '@/api'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -58,15 +96,39 @@ const rules = {
   levelName: [{ required: true, message: '请输入等级名称', trigger: 'blur' }]
 }
 
+// 关联内容对话框
+const contentDialogVisible = ref(false)
+const currentLevel = reactive({ id: null, levelName: '' })
+const allContents = ref([])
+const selectedContentIds = ref([])
+
 const loadData = async () => {
   loading.value = true
   try {
-    const res = await getNurseLevelList()
-    let data = res.data || []
+    const [levelRes, contentRes] = await Promise.all([
+      getNurseLevelList(),
+      getNurseContentList()
+    ])
+    const levels = levelRes.data || []
+    const contents = contentRes.data || []
+    allContents.value = contents
+
+    const idList = levels.map(l => l.id)
+    const assocRes = await Promise.all(idList.map(id => getNurseLevelContents(id)))
+    const contentMap = new Map(contents.map(c => [c.id, c.contentName]))
+
+    tableData.value = levels.map((level, idx) => {
+      const ids = (assocRes[idx].data) || []
+      return {
+        ...level,
+        contentIds: ids,
+        contentNames: ids.map(cid => contentMap.get(cid)).filter(Boolean)
+      }
+    })
+
     if (search.keyword) {
-      data = data.filter(item => item.levelName && item.levelName.includes(search.keyword))
+      tableData.value = tableData.value.filter(item => item.levelName && item.levelName.includes(search.keyword))
     }
-    tableData.value = data
   } finally { loading.value = false }
 }
 
@@ -92,6 +154,29 @@ const handleSubmit = async () => {
 const resetForm = () => {
   Object.assign(form, { id: null, levelName: '', description: '', price: null })
   formRef.value?.resetFields()
+}
+
+const openContentDialog = async (row) => {
+  currentLevel.id = row.id
+  currentLevel.levelName = row.levelName
+  try {
+    const res = await getNurseLevelContents(row.id)
+    selectedContentIds.value = res.data || []
+  } catch {
+    selectedContentIds.value = []
+  }
+  contentDialogVisible.value = true
+}
+
+const handleSaveContents = async () => {
+  try {
+    await setNurseLevelContents(currentLevel.id, selectedContentIds.value)
+    ElMessage.success('关联保存成功')
+    contentDialogVisible.value = false
+    loadData()
+  } catch (e) {
+    ElMessage.error('保存失败')
+  }
 }
 
 onMounted(loadData)

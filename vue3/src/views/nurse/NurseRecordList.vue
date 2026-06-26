@@ -29,8 +29,11 @@
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑记录' : '新增记录'" width="500px" @close="resetForm">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="客户" prop="customerId">
-          <el-select v-model="form.customerId" filterable placeholder="请选择客户" style="width:100%">
-            <el-option v-for="c in customerList" :key="c.id" :label="c.customerName" :value="c.id" />
+          <el-select v-model="form.customerId" filterable placeholder="输入姓名搜索老人" style="width:100%">
+            <el-option v-for="c in customerList" :key="c.id" :label="c.name" :value="c.id">
+              <span>{{ c.name }}</span>
+              <span style="color:#909399;font-size:12px;margin-left:8px">{{ c.age }}岁 · {{ c.roomNo || '未分配' }}</span>
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="护理项目" prop="nurseContentId">
@@ -67,7 +70,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getNurseRecordPage, addNurseRecord, updateNurseRecord, deleteNurseRecord, getCustomerPage, getNurseContentList } from '@/api'
+import { getNurseRecordPage, addNurseRecord, updateNurseRecord, deleteNurseRecord, getCustomerList, getNurseContentList } from '@/api'
 
 const loading = ref(false); const tableData = ref([]); const total = ref(0); const dialogVisible = ref(false); const isEdit = ref(false); const formRef = ref()
 const customerList = ref([]); const nurseContentList = ref([])
@@ -89,7 +92,7 @@ const formatDate = (dateStr) => {
 }
 
 const loadData = async () => { loading.value = true; try { const res = await getNurseRecordPage(search); tableData.value = res.data?.records || []; total.value = res.data?.total || 0 } finally { loading.value = false } }
-const loadCustomerList = async () => { try { const res = await getCustomerPage({ current: 1, size: 1000 }); customerList.value = res.data?.records || [] } catch (e) { console.error(e) } }
+const loadCustomerList = async () => { try { const res = await getCustomerList(); customerList.value = res.data || [] } catch (e) { console.error(e) } }
 const loadNurseContentList = async () => { try { const res = await getNurseContentList(); nurseContentList.value = res.data || [] } catch (e) { console.error(e) } }
 
 const openAdd = () => { isEdit.value = false; resetForm(); dialogVisible.value = true }
