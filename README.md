@@ -159,10 +159,37 @@ npm run build
 | `server.servlet.context-path` | `/yyzx` | 接口前缀 |
 | `spring.datasource.url` | `jdbc:mysql://localhost:3306/yyzx` | 数据库连接 |
 | `spring.datasource.username/password` | `root` / `DZQ3182034163` | 数据库账号 |
+| `jwt.private-key` | `classpath:jwt/jwt-private.pem` | RSA 私钥（PKCS#8），用于签发 JWT |
+| `jwt.public-key` | `classpath:jwt/jwt-public.pem` | RSA 公钥（X.509），用于校验 JWT |
 | `jwt.expiration` | `86400000` | Token 有效期（毫秒，默认 24 小时） |
 | `springdoc.swagger-ui.path` | `/swagger-ui.html` | Swagger 地址 |
 
-> ⚠️ 首次部署请务必修改数据库密码与 `jwt.secret`。
+> ⚠️ 首次部署请务必修改数据库密码，并妥善保管 `jwt-private.pem`（私钥泄露等同于可伪造任意 Token）。
+>
+> JWT 采用 **RS256 非对称签名**：后端用私钥签发，前后端/第三方均可用公钥校验，安全性高于 HS256。
+
+---
+
+## 🖼 食物图片 WebP 化
+
+为减小静态资源体积，项目根目录提供了 Python 批量转换脚本：
+
+```bash
+# 依赖 Pillow
+pip install Pillow
+
+# 一键转换 public/images/food 下所有 jpg/png → webp（默认质量 82）
+python convert_food_images_to_webp.py
+
+# 自定义质量（越低体积越小，建议 70-85）
+python convert_food_images_to_webp.py 75
+```
+
+脚本会：
+
+1. 递归扫描 `vue3/public/images/food` 下所有 `jpg/jpeg/png/bmp`；
+2. 同目录生成同名 `.webp`，并删除原图；
+3. 在根目录输出 `update_food_image_url.sql`，在数据库中执行即可将 `food.image_url` 中所有 `.jpg/.png` 引用批量替换为 `.webp`。
 
 ---
 

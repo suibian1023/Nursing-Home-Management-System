@@ -2,6 +2,8 @@ import request from './request'
 
 // 用户
 export const login = (data) => request.post('/user/login', data)
+export const getPublicKey = () => request.get('/user/public-key')
+export const getLoginNonce = (username) => request.post('/user/login-nonce', null, { params: { username } })
 export const getUserPage = (params) => request.get('/user/page', { params })
 export const addUser = (data) => request.post('/user', data)
 export const updateUser = (data) => request.put('/user', data)

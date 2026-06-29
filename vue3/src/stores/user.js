@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { login as loginApi } from '@/api'
+import { login as loginApi, getPublicKey, getLoginNonce } from '@/api'
+import { importPublicKey, rsaEncrypt } from '@/utils/crypto'
 
 export const useUserStore = defineStore('user', {
   state: () => {
@@ -19,7 +20,23 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     async login(loginForm) {
-      const res = await loginApi(loginForm)
+      // 1. 并行拉取 RSA 公钥 + 一次性登录令牌
+      const [pkRes, nonceRes] = await Promise.all([
+        getPublicKey(),
+        getLoginNonce(loginForm.username)
+      ])
+      const pubKey = await importPublicKey(pkRes.data)
+      const loginNonce = nonceRes.data
+
+      // 2. 用公钥加密密码
+      const encryptedPassword = await rsaEncrypt(loginForm.password, pubKey)
+
+      // 3. 发送密文 + nonce；无 nonce 或 nonce 被篡改/重放都会被后端拒绝
+      const res = await loginApi({
+        username: loginForm.username,
+        encryptedPassword,
+        loginNonce
+      })
       this.token = res.data.token
       this.userInfo = res.data
       localStorage.setItem('token', this.token)

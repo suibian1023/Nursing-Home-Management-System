@@ -90,6 +90,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- BCrypt 密码哈希（仅用于临时生成密文，可删除） -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
