@@ -12,5 +12,8 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface OutwardMapper extends BaseMapper<Outward> {
 
-    Page<OutwardVo> selectOutwardVo(Page<OutwardVo> page, @Param("customerName") String customerName);
+    Page<OutwardVo> selectOutwardVo(Page<OutwardVo> page,
+                                     @Param("customerName") String customerName,
+                                     @Param("roleId") Integer roleId,
+                                     @Param("approvalStatus") Integer approvalStatus);
 }

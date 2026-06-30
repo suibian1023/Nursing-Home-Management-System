@@ -151,6 +151,10 @@ CREATE TABLE outward (
     out_date         DATETIME     DEFAULT NULL            COMMENT '外出日期',
     reason           VARCHAR(500) DEFAULT NULL            COMMENT '外出原因',
     expect_back_date DATETIME     DEFAULT NULL            COMMENT '预计返回日期',
+    accompany_name   VARCHAR(255) DEFAULT NULL            COMMENT '陪同人',
+    status           INT          DEFAULT 0               COMMENT '状态 0=外出中 1=已返回',
+    approval_status  INT          DEFAULT 0               COMMENT '审批状态 0=待审批 1=已通过 2=已拒绝',
+    submitter_id     INT          DEFAULT NULL            COMMENT '提交人ID（健康管家）',
     is_deleted       INT          NOT NULL DEFAULT 0      COMMENT '逻辑删除标记',
     create_time      DATETIME     DEFAULT NULL            COMMENT '创建时间',
     PRIMARY KEY (id)

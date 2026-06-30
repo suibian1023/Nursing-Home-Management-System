@@ -41,6 +41,9 @@
         <if test="customerName != null and customerName != ''">
             AND o.customer_name LIKE CONCAT('%', #{customerName}, '%')
         </if>
+        <if test="approvalStatus != null">
+            AND o.status = #{approvalStatus}
+        </if>
         ORDER BY o.out_date DESC, o.create_time DESC
     </select>
 

@@ -4,10 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.neuedu.yyzx.pojo.Bed;
 import com.neuedu.yyzx.pojo.Customer;
-import com.neuedu.yyzx.pojo.User;
 import com.neuedu.yyzx.service.BedService;
 import com.neuedu.yyzx.service.CustomerService;
-import com.neuedu.yyzx.service.UserService;
 import com.neuedu.yyzx.utils.ResultVo;
 import com.neuedu.yyzx.vo.CustomerVo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +23,6 @@ public class CustomerController {
 
     @Autowired
     private BedService bedService;
-
-    @Autowired
-    private UserService userService;
 
     @Operation(summary = "分页查询客户")
     @GetMapping("/page")
@@ -58,31 +53,7 @@ public class CustomerController {
                     bedService.updateById(bed);
                 }
             }
-            // 自动注册普通用户账号
-            if (customer.getPhone() != null && customer.getPhone().length() >= 5) {
-                String username = customer.getPhone().substring(0, 5);
-                String password = "123456";
-                if (customer.getIdCard() != null && customer.getIdCard().length() >= 6) {
-                    password = customer.getIdCard().substring(customer.getIdCard().length() - 6);
-                }
-                // 检查用户名是否已存在
-                LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
-                userWrapper.eq(User::getUsername, username);
-                User existUser = userService.getOne(userWrapper);
-                if (existUser == null) {
-                    User user = new User();
-                    user.setUsername(username);
-                    user.setPassword(password);
-                    user.setNickname(customer.getCustomerName());
-                    user.setPhoneNumber(customer.getPhone());
-                    user.setRoleId(3); // 普通用户
-                    user.setCustomerId(customer.getId());
-                    userService.save(user);
-                    // 回填customer的user_id
-                    customer.setUserId(user.getId());
-                    customerService.updateById(customer);
-                }
-            }
+            // （已移除：注册客户时自动创建用户账号的逻辑）
         }
         return result ? ResultVo.ok() : ResultVo.fail("新增失败");
     }

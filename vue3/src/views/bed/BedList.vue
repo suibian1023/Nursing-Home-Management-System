@@ -2,8 +2,8 @@
   <div class="page-container">
     <el-card>
       <div class="search-bar">
-        <el-input v-model="search.roomNo" placeholder="搜索房间号" style="width:200px" clearable @clear="loadData" @keyup.enter="loadData" />
-        <el-button type="primary" @click="loadData">查询</el-button>
+        <el-input v-model="search.roomNo" placeholder="搜索房间号" style="width:200px" clearable @clear="handleSearch" @keyup.enter="handleSearch" />
+        <el-button type="primary" @click="handleSearch">查询</el-button>
         <el-button type="success" @click="openAdd">新增床位</el-button>
       </div>
       <el-table :data="tableData" border stripe v-loading="loading" style="margin-top:16px">
@@ -36,6 +36,18 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination-bar">
+        <el-pagination
+          v-model:current-page="pagination.pageNum"
+          v-model:page-size="pagination.pageSize"
+          :page-sizes="[10, 20, 50]"
+          :total="pagination.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          background
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        />
+      </div>
     </el-card>
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑床位' : '新增床位'" width="500px" @close="resetForm">
@@ -61,7 +73,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getBedList, addBed, updateBed, deleteBed, getBedById, updateBedStatus } from '@/api'
+import { getBedPage, addBed, updateBed, deleteBed, getBedById, updateBedStatus } from '@/api'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -69,6 +81,7 @@ const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 
+const pagination = reactive({ pageNum: 1, pageSize: 10, total: 0 })
 const search = reactive({ roomNo: '' })
 
 const form = reactive({ id: null, bedNo: '', roomNo: '', isUsed: 0 })
@@ -98,13 +111,27 @@ const changeStatus = async (row, newStatus) => {
 const loadData = async () => {
   loading.value = true
   try {
-    const res = await getBedList()
-    let data = res.data || []
-    if (search.roomNo) {
-      data = data.filter(item => item.roomNo && item.roomNo.includes(search.roomNo))
-    }
-    tableData.value = data
+    const params = { pageNum: pagination.pageNum, pageSize: pagination.pageSize }
+    if (search.roomNo) params.roomNo = search.roomNo
+    const res = await getBedPage(params)
+    const pageData = res.data || {}
+    tableData.value = pageData.records || []
+    pagination.total = pageData.total || 0
   } finally { loading.value = false }
+}
+
+const handleSearch = () => {
+  pagination.pageNum = 1
+  loadData()
+}
+
+const handleSizeChange = () => {
+  pagination.pageNum = 1
+  loadData()
+}
+
+const handlePageChange = () => {
+  loadData()
 }
 
 const openAdd = () => { isEdit.value = false; resetForm(); dialogVisible.value = true }
@@ -136,4 +163,5 @@ onMounted(loadData)
 
 <style scoped>
 .search-bar { display: flex; gap: 12px; }
+.pagination-bar { display: flex; justify-content: flex-end; margin-top: 16px; }
 </style>

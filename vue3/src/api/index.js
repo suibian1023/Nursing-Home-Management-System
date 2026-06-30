@@ -34,6 +34,7 @@ export const getCustomerById = (id) => request.get('/customer/' + id)
 // 床位
 export const getBedCount = (roomNo) => request.get('/bed/count', { params: { roomNo } })
 export const getBedList = () => request.get('/bed/list')
+export const getBedPage = (params) => request.get('/bed/page', { params })
 export const addBed = (data) => request.post('/bed', data)
 export const updateBed = (data) => request.put('/bed', data)
 export const deleteBed = (id) => request.delete('/bed/' + id)
@@ -42,6 +43,7 @@ export const updateBedStatus = (data) => request.put('/bed/status', data)
 
 // 房间
 export const getRoomList = () => request.get('/room/list')
+export const getRoomPage = (params) => request.get('/room/page', { params })
 export const addRoom = (data) => request.post('/room', data)
 export const updateRoom = (data) => request.put('/room', data)
 export const deleteRoom = (id) => request.delete('/room/' + id)
@@ -86,6 +88,7 @@ export const deleteNurseRecord = (id) => request.delete('/nurserecord/' + id)
 export const getOutwardPage = (params) => request.get('/outward/page', { params })
 export const addOutward = (data) => request.post('/outward', data)
 export const updateOutward = (data) => request.put('/outward', data)
+export const approveOutward = (id, approvalStatus) => request.put('/outward/' + id + '/approve', null, { params: { approvalStatus } })
 export const deleteOutward = (id) => request.delete('/outward/' + id)
 
 // 退住
@@ -93,15 +96,3 @@ export const getBackdownPage = (params) => request.get('/backdown/page', { param
 export const addBackdown = (data) => request.post('/backdown', data)
 export const updateBackdown = (data) => request.put('/backdown', data)
 export const deleteBackdown = (id) => request.delete('/backdown/' + id)
-
-// 点餐
-export const getFoodOrderPage = (params) => request.get('/foodorder/page', { params })
-export const addFoodOrder = (data) => request.post('/foodorder', data)
-export const updateFoodOrder = (data) => request.put('/foodorder', data)
-export const deleteFoodOrder = (id) => request.delete('/foodorder/' + id)
-
-// 呼叫
-export const getCallRecordPage = (params) => request.get('/callrecord/page', { params })
-export const addCallRecord = (data) => request.post('/callrecord', data)
-export const respondCall = (id) => request.put('/callrecord/' + id + '/respond')
-export const deleteCallRecord = (id) => request.delete('/callrecord/' + id)

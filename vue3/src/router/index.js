@@ -91,28 +91,16 @@ const routes = [
         meta: { title: '退住管理', icon: 'Remove' }
       },
       {
+        path: 'approval',
+        name: 'ApprovalList',
+        component: () => import('@/views/approval/ApprovalList.vue'),
+        meta: { title: '审批管理', icon: 'Promotion' }
+      },
+      {
         path: 'welcome',
         name: 'Welcome',
         component: () => import('@/views/Welcome.vue'),
         meta: { title: '欢迎页', icon: 'HomeFilled' }
-      },
-      {
-        path: 'order',
-        name: 'FoodOrder',
-        component: () => import('@/views/order/FoodOrder.vue'),
-        meta: { title: '点餐', icon: 'Food' }
-      },
-      {
-        path: 'call',
-        name: 'CallNurse',
-        component: () => import('@/views/call/CallNurse.vue'),
-        meta: { title: '呼叫管家', icon: 'Bell' }
-      },
-      {
-        path: 'callmanage',
-        name: 'CallManage',
-        component: () => import('@/views/call/CallManage.vue'),
-        meta: { title: '呼叫管理', icon: 'Bell' }
       }
     ]
   }

@@ -63,7 +63,7 @@ import { getMenuByRole } from '@/api'
 import {
   HomeFilled, Setting, UserFilled, OfficeBuilding, Stamp, Food,
   User, Avatar, Menu as MenuIcon, House, Grid, Document,
-  Promotion, Remove, List, Bell
+  Promotion, Remove, List
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -90,7 +90,8 @@ const allMenus = [
     key: 'customer', title: '老人管理', icon: UserFilled, children: [
       { key: 'customer-info', title: '客户管理', path: '/customer' },
       { key: 'customer-out', title: '外出管理', path: '/outward' },
-      { key: 'customer-back', title: '退住管理', path: '/backdown' }
+      { key: 'customer-back', title: '退住管理', path: '/backdown' },
+      { key: 'customer-approval', title: '审批管理', path: '/approval' }
     ]
   },
   {
@@ -112,23 +113,14 @@ const allMenus = [
       { key: 'food-item', title: '菜品管理', path: '/food' },
       { key: 'food-meal', title: '套餐管理', path: '/meal' }
     ]
-  },
-  {
-    key: 'food-order', title: '点餐订单', icon: Food, path: '/order'
-  },
-  {
-    key: 'call-manage', title: '呼叫管理', icon: Bell, path: '/callmanage'
-  },
-  {
-    key: 'call-nurse', title: '呼叫管家', icon: Bell, path: '/call'
   }
 ]
 
 // 各角色的菜单白名单
 const roleMenus = {
   1: null, // 管理员看全部
-  2: new Set(['customer-out', 'nurse-record', 'room', 'bed', 'bed-diagram', 'food-item', 'food-meal', 'food-order', 'call-manage']),
-  3: new Set(['welcome', 'food-order', 'call-nurse'])
+  2: new Set(['customer-out', 'nurse-record', 'room', 'bed', 'bed-diagram', 'food-item', 'food-meal']),
+  3: new Set(['welcome'])
 }
 
 // 当前可见菜单
@@ -139,8 +131,8 @@ onMounted(() => {
   const allowed = roleMenus[roleId]
 
   if (allowed === null) {
-    // 管理员：显示所有菜单（不含welcome和call-nurse，这些是给老人用的）
-    visibleMenus.value = allMenus.filter(m => !['welcome', 'call-nurse'].includes(m.key))
+    // 管理员：显示所有菜单（不含welcome，这个是给老人用的）
+    visibleMenus.value = allMenus.filter(m => m.key !== 'welcome')
   } else {
     // 其他角色：按白名单过滤
     visibleMenus.value = allMenus

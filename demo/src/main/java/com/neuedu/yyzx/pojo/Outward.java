@@ -55,7 +55,7 @@ public class Outward implements Serializable {
     @TableField("accompany_name")
     private String accompanyName;
 
-    @Schema(description = "状态 0=外出中 1=已返回")
+    @Schema(description = "状态 0=外出中 1=已返回 2=待审批 3=已驳回")
     private Integer status;
 
     @Schema(description = "逻辑删除标记 0=显示 1=隐藏")

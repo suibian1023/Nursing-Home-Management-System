@@ -1,5 +1,7 @@
 package com.neuedu.yyzx.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.neuedu.yyzx.pojo.Bed;
 import com.neuedu.yyzx.service.BedService;
 import com.neuedu.yyzx.utils.ResultVo;
@@ -61,6 +63,20 @@ public class BedController {
     public ResultVo<Object> delete(@PathVariable Integer id) {
         boolean result = bedService.removeById(id);
         return result ? ResultVo.ok() : ResultVo.fail("删除失败");
+    }
+
+    @Operation(summary = "分页查询床位")
+    @GetMapping("/page")
+    public ResultVo<Page<Bed>> page(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String roomNo) {
+        QueryWrapper<Bed> wrapper = new QueryWrapper<>();
+        if (roomNo != null && !roomNo.isEmpty()) {
+            wrapper.like("room_no", roomNo);
+        }
+        Page<Bed> page = bedService.page(new Page<>(pageNum, pageSize), wrapper);
+        return ResultVo.ok(page);
     }
 
     @Operation(summary = "根据ID查询床位")

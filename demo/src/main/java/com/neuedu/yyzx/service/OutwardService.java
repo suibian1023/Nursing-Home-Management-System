@@ -12,5 +12,6 @@ import com.neuedu.yyzx.utils.ResultVo;
  */
 public interface OutwardService extends IService<Outward> {
 
-    ResultVo<Page<OutwardVo>> selectOutwardVo(Long current, Long size, String customerName);
+    ResultVo<Page<OutwardVo>> selectOutwardVo(Long current, Long size, String customerName,
+                                               Integer roleId, Integer approvalStatus);
 }

@@ -17,9 +17,10 @@ import org.springframework.stereotype.Service;
 public class OutwardServiceImpl extends ServiceImpl<OutwardMapper, Outward> implements OutwardService {
 
     @Override
-    public ResultVo<Page<OutwardVo>> selectOutwardVo(Long current, Long size, String customerName) {
+    public ResultVo<Page<OutwardVo>> selectOutwardVo(Long current, Long size, String customerName,
+                                                      Integer roleId, Integer approvalStatus) {
         Page<OutwardVo> page = new Page<>(current, size);
-        page = baseMapper.selectOutwardVo(page, customerName);
+        page = baseMapper.selectOutwardVo(page, customerName, roleId, approvalStatus);
         return ResultVo.ok(page);
     }
 }
