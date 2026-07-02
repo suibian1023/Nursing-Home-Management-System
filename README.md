@@ -125,9 +125,7 @@ java实训/
 ### 1. 初始化数据库
 
 ```bash
-mysql -u root -p < server/src/main/resources/schema.sql
 mysql -u root -p yyzx < server/src/main/resources/yyzx.sql
-mysql -u root -p yyzx < server/src/main/resources/customer_data.sql
 ```
 
 > 默认数据库名 `yyzx`，字符集 `utf8mb4`。
