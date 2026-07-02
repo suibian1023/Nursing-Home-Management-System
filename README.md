@@ -10,7 +10,7 @@
 
 ```
 java实训/
-├── demo/               # 后端 - Spring Boot 3 服务
+├── server/              # 后端 - Spring Boot 3 服务
 │   ├── src/main/java/com/neuedu/yyzx/
 │   │   ├── controller/     # REST 控制器
 │   │   ├── service/        # 业务逻辑层
@@ -26,7 +26,7 @@ java实训/
 │       ├── schema.sql      # 数据库 DDL
 │       └── yyzx.sql        # 初始化数据
 │
-├── vue3/               # 前端 - Vue 3 单页应用
+├── web/                 # 前端 - Vue 3 单页应用（支持移动端适配）
 │   ├── src/
 │   │   ├── api/            # Axios 请求封装
 │   │   ├── router/         # Vue Router 路由
@@ -46,7 +46,7 @@ java实训/
 │   ├── vite.config.js
 │   └── package.json
 │
-└── tem/                # AI 智能助手后端 - Node.js/Express 服务
+└── ai-server/           # AI 智能助手后端 - Node.js/Express 服务
     ├── src/
     │   ├── index.js        # 入口文件
     │   ├── chat.js         # 聊天路由 + Spring 代理
@@ -59,7 +59,7 @@ java实训/
 
 ## 🛠 技术栈
 
-### 后端 `demo`
+### 后端 `server`
 
 | 类别 | 技术 | 版本 |
 |------|------|------|
@@ -72,7 +72,7 @@ java实训/
 | 文档 | springdoc-openapi (Swagger UI) | 2.8.6 |
 | 简化 | Lombok | - |
 
-### 前端 `vue3`
+### 前端 `web`
 
 | 类别 | 技术 | 版本 |
 |------|------|------|
@@ -85,7 +85,7 @@ java实训/
 | HTTP | Axios | 1.7.x |
 | Markdown | marked | 18.x |
 
-### AI 助手服务 `tem`
+### AI 助手服务 `ai-server`
 
 | 类别 | 技术 | 版本 |
 |------|------|------|
@@ -108,7 +108,8 @@ java实训/
 - **退住管理** — 退住登记、自动释放床位、自动逻辑删除客户档案
 - **AI 智能助手「小东」** — 对话式运营咨询，SSE 流式响应，Markdown 渲染，可代理查询后端数据
 - **系统管理** — 用户管理、角色管理、菜单权限
-- **RBAC 权限体系** — 三级角色（管理员 / 健康管家 / 老人），动态菜单、数据隔离、接口级访问控制
+- **RBAC 权限体系** — 二级角色（管理员 / 健康管家），动态菜单、数据隔离、接口级访问控制
+- **移动端适配** — 响应式布局，自动适配手机 / 平板 / 桌面端，移动端侧边栏可折叠收起
 
 ---
 
@@ -124,9 +125,9 @@ java实训/
 ### 1. 初始化数据库
 
 ```bash
-mysql -u root -p < demo/src/main/resources/schema.sql
-mysql -u root -p yyzx < demo/src/main/resources/yyzx.sql
-mysql -u root -p yyzx < demo/src/main/resources/customer_data.sql
+mysql -u root -p < server/src/main/resources/schema.sql
+mysql -u root -p yyzx < server/src/main/resources/yyzx.sql
+mysql -u root -p yyzx < server/src/main/resources/customer_data.sql
 ```
 
 > 默认数据库名 `yyzx`，字符集 `utf8mb4`。
@@ -134,7 +135,7 @@ mysql -u root -p yyzx < demo/src/main/resources/customer_data.sql
 ### 2. 启动后端
 
 ```bash
-cd demo
+cd server
 ./mvnw spring-boot:run
 # 或 Windows
 mvnw.cmd spring-boot:run
@@ -147,7 +148,7 @@ mvnw.cmd spring-boot:run
 ### 3. 启动前端
 
 ```bash
-cd vue3
+cd web
 npm install
 npm run dev
 ```
@@ -157,7 +158,7 @@ npm run dev
 ### 4. 启动 AI 智能助手（可选）
 
 ```bash
-cd tem
+cd ai-server
 npm install
 
 # 配置环境变量
@@ -173,12 +174,12 @@ AI 助手服务默认运行在 **http://localhost:3001**，提供 `/ai/api/chat`
 
 ```bash
 # 后端
-cd demo
+cd server
 ./mvnw clean package -DskipTests
 # 产出：target/yyzx-1.0.0.jar
 
 # 前端
-cd vue3
+cd web
 npm run build
 # 产出：dist/
 ```
@@ -187,7 +188,7 @@ npm run build
 
 ## ⚙️ 配置说明
 
-主要配置位于 `demo/src/main/resources/application.properties`：
+主要配置位于 `server/src/main/resources/application.properties`：
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
@@ -223,7 +224,7 @@ python convert_food_images_to_webp.py 75
 
 脚本会：
 
-1. 递归扫描 `vue3/public/images/food` 下所有 `jpg/jpeg/png/bmp`；
+1. 递归扫描 `web/public/images/food` 下所有 `jpg/jpeg/png/bmp`；
 2. 同目录生成同名 `.webp`，并删除原图；
 3. 在根目录输出 `update_food_image_url.sql`，在数据库中执行即可将 `food.image_url` 中所有 `.jpg/.png` 引用批量替换为 `.webp`。
 
