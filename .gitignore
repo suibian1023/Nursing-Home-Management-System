@@ -1,15 +1,18 @@
 # Maven
-demo/target/
-demo/.idea/
-demo/*.iml
-demo/.mvn/
+server/target/
+server/.idea/
+server/*.iml
+server/.mvn/
 
 # Node / Vue
-vue3/node_modules/
-vue3/dist/
-vue3/.vite/
-vue3/.idea/
-vue3/*.iml
+web/node_modules/
+web/dist/
+web/.vite/
+web/.idea/
+web/*.iml
+
+# AI Server
+ai-server/node_modules/
 
 # OS
 .DS_Store
@@ -19,3 +22,6 @@ Thumbs.db
 .idea/
 *.iml
 .vscode/
+
+# Temp files
+~$*
